@@ -1,0 +1,28 @@
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Games.API", "Games.API\Games.API.csproj", "{5F8BBFAA-B1E7-4C1C-BE35-67709FC6EBDF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D0DFD19D-0C17-4603-96C8-4C222573EC25} = {D0DFD19D-0C17-4603-96C8-4C222573EC25}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Genre.API", "Genre.API\Genre.API.csproj", "{FF76991C-EE8B-439B-8C4A-D77BBC08677B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D0DFD19D-0C17-4603-96C8-4C222573EC25} = {D0DFD19D-0C17-4603-96C8-4C222573EC25}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cart.API", "Cart.API\Cart.API.csproj", "{E8579F17-E9EF-47F5-B756-13FFF13857D5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D0DFD19D-0C17-4603-96C8-4C222573EC25} = {D0DFD19D-0C17-4603-96C8-4C222573EC25}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Order.API", "Order.API\Order.API.csproj", "{3770B591-11EB-45D9-B8AE-7362BAF4DF14}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D0DFD19D-0C17-4603-96C8-4C222573EC25} = {D0DFD19D-0C17-4603-96C8-4C222573EC25}
+	EndProjectSection
+EndProject
+
+
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublishRequest.API", "PublishRequest.API\PublishRequest.API.csproj", "{3BAE4F09-F49A-4BF0-9908-FAC7D1215681}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library.API", "Library.API\Library.API.csproj", "{89C74567-AB78-4922-811C-CCCBFC3AF640}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auth.API", "Auth.API\Auth.API.csproj", "{63974B88-E182-4FFA-A72D-66E5E0E96EAC}"
+EndProject

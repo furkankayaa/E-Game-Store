@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /src
+COPY ["./AspCoreMvc_App/AspCoreMvc_App.csproj", "AspCoreMvc_App/"]
+RUN dotnet restore "./AspCoreMvc_App/AspCoreMvc_App.csproj"
+COPY ./AspCoreMvc_App ./AspCoreMvc_App
+COPY ["/App.Library/App.Library.csproj", "App.Library/"]
+COPY ./App.Library/ ./App.Library/
+
+WORKDIR "/src/AspCoreMvc_App"
+RUN dotnet build "AspCoreMvc_App.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "AspCoreMvc_App.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "AspCoreMvc_App.dll"]
