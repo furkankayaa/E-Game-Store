@@ -28,7 +28,8 @@ namespace App.Library
 
         //public int GenreID { get; set; } //many to many genredetails yap bu comment olacak
 
-        public ICollection<GenreDetail> Genres { get; set; }
+        //public ICollection<GenreDetail> Genres { get; set; }
+        public ICollection<GameGenreLink> Genres { get; set; }
 
 
     }

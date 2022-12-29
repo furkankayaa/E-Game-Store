@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PublishRequest.API.Controllers
+namespace Services.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -16,9 +16,9 @@ namespace PublishRequest.API.Controllers
     {
 
         private readonly ILogger<PublishRequestController> _logger;
-        private readonly PublishRequestContext _context;
+        private readonly AuthContext _context;
 
-        public PublishRequestController( ILogger<PublishRequestController> logger, PublishRequestContext context)
+        public PublishRequestController( ILogger<PublishRequestController> logger, AuthContext context)
         {
             _logger = logger;
             _context = context;
@@ -48,7 +48,7 @@ namespace PublishRequest.API.Controllers
         [Route("[action]")]
         public GenericResponse<PublishRequestDetail> Post(GameAndGenres data)
         {
-            data.Game.Genres = data.Genres;
+            //data.Game.Genres = data.Genres;
 
             PublishRequestDetail gameRequest = new PublishRequestDetail { Game = data.Game, RequestDate = DateTime.Now, UserId = data.UserId };
             _context.PublishRequestDetails.Add(gameRequest);

@@ -10,10 +10,10 @@ namespace App.Library
 {
     public class GameOrderLink
     {
-        [Key]
+        //[Key]
         public int GameId { get; set; }
         public OrderedGamesDetail Game { get; set; }
-        [Key]
+        //[Key]
         public int OrderId { get; set; }
         public OrderDetail Order { get; set; }
     }

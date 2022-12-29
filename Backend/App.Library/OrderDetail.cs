@@ -18,6 +18,8 @@ namespace App.Library
         public string UserID { get; set; }
 
         //Navigation Prop
-        public List<OrderedGamesDetail> OrderedGames { get; set; }
+        //public List<OrderedGamesDetail> OrderedGames { get; set; }
+        public ICollection<GameOrderLink> OrderedGames { get; set; }
+
     }
 }

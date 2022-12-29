@@ -12,11 +12,10 @@ namespace App.Library
         public int GenreID { get; set; }
         public string CategoryName { get; set; }
 
-        
-        //////////
-        public ICollection<GameDetail> Games { get; set; }
 
-        //GenreEnum kullan
+        //////////
+        //public ICollection<GameDetail> Games { get; set; }
+        public ICollection<GameGenreLink> Games { get; set; }
 
     }
 }

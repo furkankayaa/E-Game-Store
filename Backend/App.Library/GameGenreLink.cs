@@ -9,10 +9,10 @@ namespace App.Library
 {
     public class GameGenreLink
     {
-        [Key]
+        //[Key]
         public int GameId { get; set; }
         public GameDetail Game { get; set; }
-        [Key]
+        //[Key]
         public int GenreId { get; set; }
         public GenreDetail Genre { get; set; }
 

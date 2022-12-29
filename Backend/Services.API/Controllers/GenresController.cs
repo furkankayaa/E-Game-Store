@@ -1,4 +1,5 @@
 ﻿using App.Library;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -8,18 +9,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Genre.API.Controllers
+namespace Services.API.Controllers
 {
-
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class GenresController : ControllerBase
     {
 
         private readonly ILogger<GenresController> _logger;
-        private readonly GameGenreContext _context;
+        private readonly AuthContext _context;
 
-        public GenresController(ILogger<GenresController> logger, GameGenreContext context)
+        public GenresController(ILogger<GenresController> logger, AuthContext context)
         {
             _logger = logger;
             _context = context;

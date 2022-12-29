@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Order.API.Controllers
+namespace Services.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -15,9 +15,9 @@ namespace Order.API.Controllers
     {
 
         private readonly ILogger<OrderController> _logger;
-        private readonly OrderContext _context;
+        private readonly AuthContext _context;
 
-        public OrderController(ILogger<OrderController> logger, OrderContext context)
+        public OrderController(ILogger<OrderController> logger, AuthContext context)
         {
             _logger = logger;
             _context = context;
@@ -31,17 +31,25 @@ namespace Order.API.Controllers
             var purchases = _context.OrderDetails.Where(x => x.UserID == userId).ToList();
 
             List<List<GameOrderLink>> Links = new List<List<GameOrderLink>>();
-            foreach (var p in purchases)
-            {
-                var temp_links = _context.GameOrderLinks.Where(x => x.OrderId == p.OrderNum).ToList();
-                foreach (var link in temp_links)
-                {
-                    link.Order = p;
-                    link.Game = _context.OrderedGamesDetails.Find(link.GameId);
-                }
-                Links.Add(temp_links);
 
-            }
+
+
+            //MANY TO MANY DÜZELTİRKEN YORUMA ALDIM SONRADAN BAK!
+            //foreach (var p in purchases)
+            //{
+            //    var temp_links = _context.GameOrderLinks.Where(x => x.OrderId == p.OrderNum).ToList();
+            //    foreach (var link in temp_links)
+            //    {
+            //        link.Order = p;
+            //        link.Game = _context.OrderedGamesDetails.Find(link.GameId);
+            //    }
+            //    Links.Add(temp_links);
+
+            //}
+
+
+
+
             if (purchases != null)
                 return Ok(Links);
             else
@@ -59,22 +67,30 @@ namespace Order.API.Controllers
                 //List<OrderedGamesDetail> orderedGames = new List<OrderedGamesDetail>() { };
                 OrderDetail Order = new OrderDetail() { OrderDate = DateTime.Now, Quantity = games.Count, PaymentMethod = "CC", UserID = games[0].UserID };
 
-                foreach (var game in games)
-                {
-                    // Order = Order, OrderId = Order.OrderNum
-                    OrderedGamesDetail toAdd = new OrderedGamesDetail() { GameName = game.GameName, GamePrice = game.GamePrice, Publisher = game.Publisher };
-                    var isExists = _context.OrderedGamesDetails.Where(x => x.GameName == game.GameName).FirstOrDefault();
-                    if (isExists == null)
-                    {
-                        _context.OrderedGamesDetails.Add(toAdd);
-                    }
 
-                    GameOrderLink Link = new GameOrderLink { Game = toAdd, Order = Order };
 
-                    _context.GameOrderLinks.Add(Link);
+                //MANY TO MANY DÜZELTİRKEN YORUMA ALDIM SONRADAN BAK!
+                //foreach (var game in games)
+                //{
+                //    // Order = Order, OrderId = Order.OrderNum
+                //    OrderedGamesDetail toAdd = new OrderedGamesDetail() { GameName = game.GameName, GamePrice = game.GamePrice, Publisher = game.Publisher };
+                //    var isExists = _context.OrderedGamesDetails.Where(x => x.GameName == game.GameName).FirstOrDefault();
+                //    if (isExists == null)
+                //    {
+                //        _context.OrderedGamesDetails.Add(toAdd);
+                //    }
 
-                    totalPrice += game.GamePrice;
-                }
+                //    GameOrderLink Link = new GameOrderLink { Game = toAdd, Order = Order };
+
+                //    _context.GameOrderLinks.Add(Link);
+
+                //    totalPrice += game.GamePrice;
+                //}
+
+
+
+
+
                 //Order.OrderedGames = orderedGames;
                 totalPrice = Math.Round(totalPrice, 2);
                 Order.TotalPrice = totalPrice;

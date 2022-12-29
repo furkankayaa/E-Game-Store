@@ -114,7 +114,8 @@ namespace Services.API.Data
         /// <returns></returns>
         private TokenInfo GenerateToken()
         {
-            DateTime expireDate = DateTime.Now.AddSeconds(50);
+            //ExpireDate set ediliyor
+            DateTime expireDate = DateTime.Now.AddMinutes(10);
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_config["Application:Secret"]);
 

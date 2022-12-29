@@ -10,9 +10,11 @@ using Microsoft.AspNetCore.Cors;
 using App.Library;
 using Newtonsoft.Json.Linq;
 using Services.API.Data;
+using Microsoft.AspNetCore.Authorization;
 
-namespace Games.API.Controllers
+namespace Services.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [EnableCors()]
     [Route("api/[controller]")]
@@ -20,9 +22,9 @@ namespace Games.API.Controllers
     {
 
         private readonly ILogger<GamesController> _logger;
-        private readonly GameGenreContext _context;
+        private readonly AuthContext _context;
 
-        public GamesController(ILogger<GamesController> logger, GameGenreContext context)
+        public GamesController(ILogger<GamesController> logger, AuthContext context)
         {
             _logger = logger;
             _context = context;
@@ -91,17 +93,21 @@ namespace Games.API.Controllers
             //Oyunu GameDetails tablosuna ekle 
             _context.GameDetails.Add(publishGame);
 
+
+
+
+            //MANY TO MANY DÜZELTİRKEN YORUMA ALDIM SONRADAN BAK!
             //GameGenreLinks tablosuna relationları ekle
-            foreach (var genre in publishGame.Genres)
-            {
-                _context.GameGenreLinks.Add(
-                    new GameGenreLink()
-                    {
-                        Game = publishGame,
-                        Genre = genre
-                    }
-                );
-            }
+            //foreach (var genre in publishGame.Genres)
+            //{
+            //    _context.GameGenreLinks.Add(
+            //        new GameGenreLink()
+            //        {
+            //            Game = publishGame,
+            //            Genre = genre
+            //        }
+            //    );
+            //}
 
 
             _context.SaveChanges();

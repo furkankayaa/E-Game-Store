@@ -1,4 +1,5 @@
 ﻿using App.Library;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Services.API.Data;
@@ -10,16 +11,18 @@ using System.Threading.Tasks;
 
 namespace Services.API.Controllers
 {
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CartController : ControllerBase
     {
-        private readonly CartItemsContext _context;
-        public CartController(CartItemsContext context)
+        private readonly AuthContext _context;
+        public CartController(AuthContext context)
         {
             _context = context;
         }
 
+        [HttpGet]
         [Route("[action]")]
         public GenericResponse<List<CartItemDetail>> GetAll(string userId)
         {

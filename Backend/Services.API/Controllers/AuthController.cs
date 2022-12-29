@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Services.API.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase

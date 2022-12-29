@@ -5,7 +5,7 @@
   </PropertyGroup>
 
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	<PlatformTarget>ARM64</PlatformTarget>
+	<PlatformTarget>x64</PlatformTarget>
 	<WarningLevel>3</WarningLevel>
 </PropertyGroup>
 

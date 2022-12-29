@@ -36,7 +36,7 @@ namespace App.Library
         {
 
             var genres = GetCategories();
-            var catName = genres.Where(x => x.GenreID == game.GenreID).FirstOrDefault().CategoryName;
+            //var catName = genres.Where(x => x.GenreID == game.GenreID).FirstOrDefault().CategoryName;
 
             GameDetailResponse myResponse = new GameDetailResponse
             {
@@ -46,14 +46,14 @@ namespace App.Library
                 GamePrice = game.GamePrice,
                 Publisher = game.Publisher,
                 ImageUrl = game.ImageUrl,
-                GenreID = game.GenreID,
+                //GenreID = game.GenreID,
                 ReleaseDate = game.ReleaseDate,
                 Rating = game.Rating,
                 AvailableAgeScala = game.AvailableAgeScala,
                 ChildrenSuitable = game.ChildrenSuitable,
                 LanguageOption = game.LanguageOption,
                 GameApk = game.GameApk,
-                CategoryName = catName
+                //CategoryName = catName
             };
 
             return myResponse;
@@ -101,7 +101,7 @@ namespace App.Library
                     GamePrice= (double)jObject["gamePrice"], 
                     Publisher= (string)jObject["publisher"] , 
                     ImageUrl= (string)jObject["imageUrl"], 
-                    GenreID = (int)jObject["genreID"], 
+                    //GenreID = (int)jObject["genreID"], 
                     ChildrenSuitable = (bool)jObject["childrenSuitable"],
                     AvailableAgeScala = (string)jObject["availableAgeScala"],
                     ReleaseDate = (DateTime)jObject["releaseDate"],
@@ -135,7 +135,7 @@ namespace App.Library
                 GamePrice= (double)jObject["gamePrice"], 
                 Publisher= (string)jObject["publisher"] , 
                 ImageUrl= (string)jObject["imageUrl"], 
-                GenreID = (int)jObject["genreID"], 
+                //GenreID = (int)jObject["genreID"], 
                 ChildrenSuitable = (bool)jObject["childrenSuitable"],
                 AvailableAgeScala = (string)jObject["availableAgeScala"],
                 ReleaseDate = (DateTime)jObject["releaseDate"],

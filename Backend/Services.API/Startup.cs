@@ -42,7 +42,7 @@ namespace Services.API
             var port = Configuration["DBPORT"] ?? "3306";
             var pw = Configuration["DBPASSWORD"] ?? "123";
 
-            var mysqlConnectionString = $"server={host};userid=root;pwd={pw};" + $"port={port};database=GamesDB";
+            var mysqlConnectionString = $"server={host};userid=root;pwd={pw};" + $"port={port};database=GameStoreDB";
 
             services.AddDbContextPool<AuthContext>(options =>
             options.UseMySql(mysqlConnectionString, ServerVersion.AutoDetect(mysqlConnectionString), mySqlOptions =>
@@ -103,6 +103,10 @@ namespace Services.API
                             new string[] {}
                     }
                 });
+
+
+                //To input headers
+                //c.OperationFilter<MyHeaderFilter>();
             });
         }
 
@@ -136,7 +140,9 @@ namespace Services.API
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints
+                .MapControllers()
+                .RequireAuthorization();
             });
         }
     }
