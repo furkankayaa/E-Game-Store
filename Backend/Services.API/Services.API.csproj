@@ -31,4 +31,8 @@
     <ProjectReference Include="..\App.Library\App.Library.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

@@ -39,9 +39,9 @@ namespace App.Library
             //var catName = genres.Where(x => x.GenreID == game.GenreID).FirstOrDefault().CategoryName;
 
             GameDetailResponse myResponse = new GameDetailResponse
-            {
-                ID = game.ID,
-                Description = game.Description,
+                {
+                    ID = game.ID,
+                Description =game.Description,
                 GameName = game.GameName,
                 GamePrice = game.GamePrice,
                 Publisher = game.Publisher,
@@ -94,13 +94,14 @@ namespace App.Library
             JArray jArray = (JArray)responseObject["response"];
             foreach (JObject jObject in jArray)
             {
+                
                 games.Add(new GameDetailResponse { 
-                    ID= (int)jObject["id"], 
-                    GameName= (string)jObject["gameName"], 
-                    Description= (string)jObject["description"], 
-                    GamePrice= (double)jObject["gamePrice"], 
-                    Publisher= (string)jObject["publisher"] , 
-                    ImageUrl= (string)jObject["imageUrl"], 
+                    ID= (int)jObject["id"],
+                    GameName = (string)jObject["gameName"],
+                    Description = (string)jObject["description"],
+                    GamePrice = (double)jObject["gamePrice"],
+                    Publisher = (string)jObject["publisher"],
+                    ImageUrl = (string)jObject["imageUrl"],
                     //GenreID = (int)jObject["genreID"], 
                     ChildrenSuitable = (bool)jObject["childrenSuitable"],
                     AvailableAgeScala = (string)jObject["availableAgeScala"],
@@ -108,6 +109,8 @@ namespace App.Library
                     Rating = (float)jObject["rating"],
                     LanguageOption = (string)jObject["languageOption"],
                     GameApk = (string)jObject["gameApk"],
+
+
                     CategoryName = (string)jObject["categoryName"] });
             }
 
@@ -126,15 +129,15 @@ namespace App.Library
             JObject responseObject = JObject.Parse(gameResponse);
 
             JObject jObject = (JObject)responseObject["response"];
-            
+
             
             var toReturn = new GameDetailResponse { 
-                ID= (int)jObject["id"], 
-                GameName= (string)jObject["gameName"], 
-                Description= (string)jObject["description"], 
-                GamePrice= (double)jObject["gamePrice"], 
-                Publisher= (string)jObject["publisher"] , 
-                ImageUrl= (string)jObject["imageUrl"], 
+                ID= (int)jObject["id"],
+                GameName = (string)jObject["gameName"],
+                Description = (string)jObject["description"],
+                GamePrice = (double)jObject["gamePrice"],
+                Publisher = (string)jObject["publisher"],
+                ImageUrl = (string)jObject["imageUrl"],
                 //GenreID = (int)jObject["genreID"], 
                 ChildrenSuitable = (bool)jObject["childrenSuitable"],
                 AvailableAgeScala = (string)jObject["availableAgeScala"],

@@ -140,39 +140,12 @@ namespace Services.API.Migrations
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<bool>("isApproved")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasKey("ID");
 
                     b.ToTable("GameDetails");
-                });
-
-            modelBuilder.Entity("App.Library.GameGenreLink", b =>
-                {
-                    b.Property<int>("GameId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GenreId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GameId", "GenreId");
-
-                    b.HasIndex("GenreId");
-
-                    b.ToTable("GameGenreLink");
-                });
-
-            modelBuilder.Entity("App.Library.GameOrderLink", b =>
-                {
-                    b.Property<int>("GameId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GameId", "OrderId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("GameOrderLink");
                 });
 
             modelBuilder.Entity("App.Library.GenreDetail", b =>
@@ -232,33 +205,13 @@ namespace Services.API.Migrations
                     b.ToTable("OrderDetails");
                 });
 
-            modelBuilder.Entity("App.Library.OrderedGamesDetail", b =>
-                {
-                    b.Property<int>("GameId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("GameName")
-                        .HasColumnType("longtext");
-
-                    b.Property<double>("GamePrice")
-                        .HasColumnType("double");
-
-                    b.Property<string>("Publisher")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("GameId");
-
-                    b.ToTable("OrderedGamesDetails");
-                });
-
             modelBuilder.Entity("App.Library.PublishRequestDetail", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int?>("GameID")
+                    b.Property<int>("GameId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("RequestDate")
@@ -269,9 +222,40 @@ namespace Services.API.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("GameID");
+                    b.HasIndex("GameId")
+                        .IsUnique();
 
                     b.ToTable("PublishRequestDetails");
+                });
+
+            modelBuilder.Entity("GameDetailGenreDetail", b =>
+                {
+                    b.Property<int>("GamesID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GenresGenreID")
+                        .HasColumnType("int");
+
+                    b.HasKey("GamesID", "GenresGenreID");
+
+                    b.HasIndex("GenresGenreID");
+
+                    b.ToTable("GameDetailGenreDetail");
+                });
+
+            modelBuilder.Entity("GameDetailOrderDetail", b =>
+                {
+                    b.Property<int>("OrderedGamesID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrdersOrderNum")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderedGamesID", "OrdersOrderNum");
+
+                    b.HasIndex("OrdersOrderNum");
+
+                    b.ToTable("GameDetailOrderDetail");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -400,71 +384,50 @@ namespace Services.API.Migrations
                     b.HasDiscriminator().HasValue("AppUserTokens");
                 });
 
-            modelBuilder.Entity("App.Library.GameGenreLink", b =>
-                {
-                    b.HasOne("App.Library.GameDetail", "Game")
-                        .WithMany("Genres")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("App.Library.GenreDetail", "Genre")
-                        .WithMany("Games")
-                        .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Game");
-
-                    b.Navigation("Genre");
-                });
-
-            modelBuilder.Entity("App.Library.GameOrderLink", b =>
-                {
-                    b.HasOne("App.Library.OrderedGamesDetail", "Game")
-                        .WithMany("Orders")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("App.Library.OrderDetail", "Order")
-                        .WithMany("OrderedGames")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Game");
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("App.Library.PublishRequestDetail", b =>
                 {
                     b.HasOne("App.Library.GameDetail", "Game")
-                        .WithMany()
-                        .HasForeignKey("GameID");
+                        .WithOne("Request")
+                        .HasForeignKey("App.Library.PublishRequestDetail", "GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("GameDetailGenreDetail", b =>
+                {
+                    b.HasOne("App.Library.GameDetail", null)
+                        .WithMany()
+                        .HasForeignKey("GamesID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("App.Library.GenreDetail", null)
+                        .WithMany()
+                        .HasForeignKey("GenresGenreID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("GameDetailOrderDetail", b =>
+                {
+                    b.HasOne("App.Library.GameDetail", null)
+                        .WithMany()
+                        .HasForeignKey("OrderedGamesID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("App.Library.OrderDetail", null)
+                        .WithMany()
+                        .HasForeignKey("OrdersOrderNum")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("App.Library.GameDetail", b =>
                 {
-                    b.Navigation("Genres");
-                });
-
-            modelBuilder.Entity("App.Library.GenreDetail", b =>
-                {
-                    b.Navigation("Games");
-                });
-
-            modelBuilder.Entity("App.Library.OrderDetail", b =>
-                {
-                    b.Navigation("OrderedGames");
-                });
-
-            modelBuilder.Entity("App.Library.OrderedGamesDetail", b =>
-                {
-                    b.Navigation("Orders");
+                    b.Navigation("Request");
                 });
 #pragma warning restore 612, 618
         }

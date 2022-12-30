@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Services.API.Migrations
 {
-    public partial class newDb : Migration
+    public partial class newdb_ : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -56,7 +56,8 @@ namespace Services.API.Migrations
                     LanguageOption = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     GameApk = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    isApproved = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,24 +113,6 @@ namespace Services.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OrderDetails", x => x.OrderNum);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "OrderedGamesDetails",
-                columns: table => new
-                {
-                    GameId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    GameName = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    GamePrice = table.Column<double>(type: "double", nullable: false),
-                    Publisher = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderedGamesDetails", x => x.GameId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -194,18 +177,18 @@ namespace Services.API.Migrations
                 name: "UserLogins",
                 columns: table => new
                 {
+                    LoginProvider = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ProviderKey = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     UserId = table.Column<string>(type: "varchar(255)", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    LoginProvider = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ProviderKey = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ProviderDisplayName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserLogins", x => x.UserId);
+                    table.PrimaryKey("PK_UserLogins", x => new { x.LoginProvider, x.ProviderKey, x.UserId });
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -213,14 +196,14 @@ namespace Services.API.Migrations
                 name: "UserRoles",
                 columns: table => new
                 {
-                    RoleId = table.Column<string>(type: "varchar(255)", nullable: false)
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    UserId = table.Column<string>(type: "longtext", nullable: true)
+                    RoleId = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRoles", x => x.RoleId);
+                    table.PrimaryKey("PK_UserRoles", x => new { x.UserId, x.RoleId });
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -267,9 +250,9 @@ namespace Services.API.Migrations
                 {
                     UserId = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LoginProvider = table.Column<string>(type: "longtext", nullable: true)
+                    LoginProvider = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Name = table.Column<string>(type: "longtext", nullable: true)
+                    Name = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Value = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -279,7 +262,7 @@ namespace Services.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserTokens", x => x.UserId);
+                    table.PrimaryKey("PK_UserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -289,20 +272,20 @@ namespace Services.API.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    GameID = table.Column<int>(type: "int", nullable: true),
                     RequestDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UserId = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    GameId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PublishRequestDetails", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_PublishRequestDetails_GameDetails_GameID",
-                        column: x => x.GameID,
+                        name: "FK_PublishRequestDetails_GameDetails_GameId",
+                        column: x => x.GameId,
                         principalTable: "GameDetails",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -332,76 +315,26 @@ namespace Services.API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "GameGenreLinks",
+                name: "GameDetailOrderDetail",
                 columns: table => new
                 {
-                    GameId = table.Column<int>(type: "int", nullable: false),
-                    GenreId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GameGenreLinks", x => new { x.GameId, x.GenreId });
-                    table.ForeignKey(
-                        name: "FK_GameGenreLinks_GameDetails_GameId",
-                        column: x => x.GameId,
-                        principalTable: "GameDetails",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GameGenreLinks_GenreDetails_GenreId",
-                        column: x => x.GenreId,
-                        principalTable: "GenreDetails",
-                        principalColumn: "GenreID",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "GameOrderLinks",
-                columns: table => new
-                {
-                    GameId = table.Column<int>(type: "int", nullable: false),
-                    OrderId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GameOrderLinks", x => new { x.GameId, x.OrderId });
-                    table.ForeignKey(
-                        name: "FK_GameOrderLinks_OrderDetails_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "OrderDetails",
-                        principalColumn: "OrderNum",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GameOrderLinks_OrderedGamesDetails_GameId",
-                        column: x => x.GameId,
-                        principalTable: "OrderedGamesDetails",
-                        principalColumn: "GameId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "OrderDetailOrderedGamesDetail",
-                columns: table => new
-                {
-                    OrderedGamesGameId = table.Column<int>(type: "int", nullable: false),
+                    OrderedGamesID = table.Column<int>(type: "int", nullable: false),
                     OrdersOrderNum = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderDetailOrderedGamesDetail", x => new { x.OrderedGamesGameId, x.OrdersOrderNum });
+                    table.PrimaryKey("PK_GameDetailOrderDetail", x => new { x.OrderedGamesID, x.OrdersOrderNum });
                     table.ForeignKey(
-                        name: "FK_OrderDetailOrderedGamesDetail_OrderDetails_OrdersOrderNum",
+                        name: "FK_GameDetailOrderDetail_GameDetails_OrderedGamesID",
+                        column: x => x.OrderedGamesID,
+                        principalTable: "GameDetails",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GameDetailOrderDetail_OrderDetails_OrdersOrderNum",
                         column: x => x.OrdersOrderNum,
                         principalTable: "OrderDetails",
                         principalColumn: "OrderNum",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_OrderDetailOrderedGamesDetail_OrderedGamesDetails_OrderedGam~",
-                        column: x => x.OrderedGamesGameId,
-                        principalTable: "OrderedGamesDetails",
-                        principalColumn: "GameId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -412,24 +345,15 @@ namespace Services.API.Migrations
                 column: "GenresGenreID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GameGenreLinks_GenreId",
-                table: "GameGenreLinks",
-                column: "GenreId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GameOrderLinks_OrderId",
-                table: "GameOrderLinks",
-                column: "OrderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderDetailOrderedGamesDetail_OrdersOrderNum",
-                table: "OrderDetailOrderedGamesDetail",
+                name: "IX_GameDetailOrderDetail_OrdersOrderNum",
+                table: "GameDetailOrderDetail",
                 column: "OrdersOrderNum");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PublishRequestDetails_GameID",
+                name: "IX_PublishRequestDetails_GameId",
                 table: "PublishRequestDetails",
-                column: "GameID");
+                column: "GameId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -441,16 +365,10 @@ namespace Services.API.Migrations
                 name: "GameDetailGenreDetail");
 
             migrationBuilder.DropTable(
-                name: "GameGenreLinks");
-
-            migrationBuilder.DropTable(
-                name: "GameOrderLinks");
+                name: "GameDetailOrderDetail");
 
             migrationBuilder.DropTable(
                 name: "LibraryDetails");
-
-            migrationBuilder.DropTable(
-                name: "OrderDetailOrderedGamesDetail");
 
             migrationBuilder.DropTable(
                 name: "PublishRequestDetails");
@@ -481,9 +399,6 @@ namespace Services.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "OrderDetails");
-
-            migrationBuilder.DropTable(
-                name: "OrderedGamesDetails");
 
             migrationBuilder.DropTable(
                 name: "GameDetails");

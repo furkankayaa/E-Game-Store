@@ -42,13 +42,21 @@ namespace Services.API
             var port = Configuration["DBPORT"] ?? "3306";
             var pw = Configuration["DBPASSWORD"] ?? "123";
 
-            var mysqlConnectionString = $"server={host};userid=root;pwd={pw};" + $"port={port};database=GameStoreDB";
+            var mysqlConnectionString = $"server={host};userid=root;pwd={pw};" + $"port={port};database=StoreDB";
 
-            services.AddDbContextPool<AuthContext>(options =>
-            options.UseMySql(mysqlConnectionString, ServerVersion.AutoDetect(mysqlConnectionString), mySqlOptions =>
-            {
-                mySqlOptions.EnableRetryOnFailure();
-            }));
+            //services.AddDbContextPool<AuthContext>(options =>
+            //options.UseMySql(mysqlConnectionString, ServerVersion.AutoDetect(mysqlConnectionString), mySqlOptions =>
+            //{
+            //    mySqlOptions.EnableRetryOnFailure();
+            //}));
+
+            services.AddDbContext<AuthContext>(options =>
+                options.UseMySql(mysqlConnectionString, ServerVersion.AutoDetect(mysqlConnectionString), 
+                    mySqlOptionsAction =>
+                    { 
+                        mySqlOptionsAction.EnableRetryOnFailure(); 
+                    }));
+
             services.AddCors();
 
             services.AddIdentity<AppUser, IdentityRole>()
@@ -111,7 +119,7 @@ namespace Services.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AuthContext dbContext)
         {
             if (env.IsDevelopment())
             {
@@ -120,13 +128,14 @@ namespace Services.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Services.API v1"));
             }
 
-            using (var scope =
-              app.ApplicationServices.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetService<AuthContext>();
-                dbContext.Database.Migrate();
-            }
+            //using (var scope =
+            //  app.ApplicationServices.CreateScope())
+            //{
+            //    var dbContext = scope.ServiceProvider.GetService<AuthContext>();
+            //    dbContext.Database.Migrate();
+            //}
 
+            dbContext.Database.Migrate();
 
             app.UseCors(x => x
             .SetIsOriginAllowed(origin => true)

@@ -19,7 +19,8 @@ namespace App.Library
 
         //Navigation Prop
         //public List<OrderedGamesDetail> OrderedGames { get; set; }
-        public ICollection<GameOrderLink> OrderedGames { get; set; }
+        //public ICollection<GameOrderLink> OrderedGames { get; set; }
 
+        public List<GameDetail> OrderedGames { get; set; }
     }
 }

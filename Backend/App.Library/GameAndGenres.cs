@@ -8,8 +8,8 @@ namespace App.Library
 {
     public class GameAndGenres
     {
-        public GameDetail Game { get; set; }
-        public List<GenreDetail> Genres { get; set; }
+        public GameProps Game { get; set; }
+        public List<int> GenreIds { get; set; }
         public string UserId { get; set; }
     }
 }

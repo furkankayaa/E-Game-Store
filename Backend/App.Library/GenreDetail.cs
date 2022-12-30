@@ -14,8 +14,8 @@ namespace App.Library
 
 
         //////////
-        //public ICollection<GameDetail> Games { get; set; }
-        public ICollection<GameGenreLink> Games { get; set; }
+        public ICollection<GameDetail> Games { get; set; }
+        //public ICollection<GameGenreLink> Games { get; set; }
 
     }
 }

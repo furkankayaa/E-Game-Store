@@ -14,22 +14,25 @@ namespace Services.API.Data
     {
         public AuthContext _context { get; set; }
         public IConfiguration _config { get; set; }
-        public AppUser _appUserppUser { get; set; }
+        public AppUser _appUser { get; set; }
+        public string _appRole { get; set; }
 
         /// <summary>
         /// Class'ın oluşturulması.
         /// </summary>
         /// <param name="_context"></param>
         /// <param name="_config"></param>
-        /// <param name="_appUserppUser"></param>
+        /// <param name="_appUser"></param>
         /// <returns></returns>
         public AccessTokenGenerator(AuthContext context,
                                     IConfiguration config,
-                                    AppUser appUser)
+                                    AppUser appUser,
+                                    string appRole)
         {
             _config = config;
             _context = context;
-            _appUserppUser = appUser;
+            _appUser = appUser;
+            _appRole = appRole;
         }
 
         /// <summary>
@@ -42,10 +45,10 @@ namespace Services.API.Data
             TokenInfo tokenInfo = null;
 
             //Kullanıcıya ait önceden oluşturulmuş bir token var mı kontrol edilir.
-            if (_context.AppUserTokens.Count(x => x.UserId == _appUserppUser.Id) > 0)
+            if (_context.AppUserTokens.Count(x => x.UserId == _appUser.Id) > 0)
             {
                 //İlgili token bilgileri bulunur.
-                userTokens = _context.AppUserTokens.FirstOrDefault(x => x.UserId == _appUserppUser.Id);
+                userTokens = _context.AppUserTokens.FirstOrDefault(x => x.UserId == _appUser.Id);
 
                 //Expire olmuş ise yeni token oluşturup günceller.
                 if (userTokens.ExpireDate <= DateTime.Now)
@@ -66,11 +69,12 @@ namespace Services.API.Data
 
                 userTokens = new AppUserTokens();
 
-                userTokens.UserId = _appUserppUser.Id;
+                userTokens.UserId = _appUser.Id;
                 userTokens.LoginProvider = "SystemAPI";
-                userTokens.Name = _appUserppUser.FullName;
+                userTokens.Name = _appUser.FullName;
                 userTokens.ExpireDate = tokenInfo.ExpireDate;
                 userTokens.Value = tokenInfo.Token;
+                userTokens.Role = _appRole;
 
                 _context.AppUserTokens.Add(userTokens);
             }
@@ -91,9 +95,9 @@ namespace Services.API.Data
             try
             {
                 //Kullanıcıya ait önceden oluşturulmuş bir token var mı kontrol edilir.
-                if (_context.AppUserTokens.Count(x => x.UserId == _appUserppUser.Id) > 0)
+                if (_context.AppUserTokens.Count(x => x.UserId == _appUser.Id) > 0)
                 {
-                    AppUserTokens userTokens = userTokens = _context.AppUserTokens.FirstOrDefault(x => x.UserId == _appUserppUser.Id);
+                    AppUserTokens userTokens = _context.AppUserTokens.FirstOrDefault(x => x.UserId == _appUser.Id);
 
                     _context.AppUserTokens.Remove(userTokens);
                 }
@@ -127,9 +131,10 @@ namespace Services.API.Data
                 {
                     //Claim tanımları yapılır. Burada en önemlisi Id ve emaildir.
                     //Id üzerinden, aktif kullanıcıyı buluyor olacağız.
-                    new Claim(ClaimTypes.NameIdentifier, _appUserppUser.Id),
-                    new Claim(ClaimTypes.Name, _appUserppUser.FullName),
-                    new Claim(ClaimTypes.Email, _appUserppUser.Email)
+                    new Claim(ClaimTypes.NameIdentifier, _appUser.Id),
+                    new Claim(ClaimTypes.Name, _appUser.FullName),
+                    new Claim(ClaimTypes.Email, _appUser.Email),
+                    new Claim(ClaimTypes.Role, _appRole)
                 }),
 
                 //ExpireDate
@@ -146,6 +151,7 @@ namespace Services.API.Data
 
             tokenInfo.Token = tokenString;
             tokenInfo.ExpireDate = expireDate;
+            tokenInfo.Role = _appRole;
 
             return tokenInfo;
         }

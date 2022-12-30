@@ -2,18 +2,20 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Services.API.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 
 namespace Services.API.Controllers
 {
-    [AllowAnonymous]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -38,6 +40,7 @@ namespace Services.API.Controllers
             _roleManager = roleManager;
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("Register")]
         public async Task<ActionResult> Register([FromBody] RegisterViewModel model)
@@ -72,6 +75,7 @@ namespace Services.API.Controllers
                 user.FullName = model.FullName;
                 user.Email = model.Email.Trim();
                 user.UserName = model.Email.Trim();
+                
 
                 //Kullanıcı oluşturulur.
                 IdentityResult result = await _userManager.CreateAsync(user, model.Password.Trim());
@@ -112,6 +116,82 @@ namespace Services.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [Route("CreateAdmin")]
+        public async Task<ActionResult> CreateAdmin([FromBody] RegisterViewModel model)
+        {
+            ResponseViewModel responseViewModel = new ResponseViewModel();
+
+            try
+            {
+                #region Validate
+                if (!ModelState.IsValid)
+                {
+                    responseViewModel.IsSuccess = false;
+                    responseViewModel.Message = "Bilgileriniz eksik, bazı alanlar gönderilmemiş. Lütfen tüm alanları doldurunuz.";
+
+                    return BadRequest(responseViewModel);
+                }
+
+                AppUser existsUser = await _userManager.FindByNameAsync(model.Email);
+
+                if (existsUser != null)
+                {
+                    responseViewModel.IsSuccess = false;
+                    responseViewModel.Message = "Kullanıcı zaten var.";
+
+                    return BadRequest(responseViewModel);
+                }
+                #endregion
+
+                //Kullanıcı bilgileri set edilir.
+                AppUser user = new AppUser();
+
+                user.FullName = model.FullName;
+                user.Email = model.Email.Trim();
+                user.UserName = model.Email.Trim();
+
+                //Kullanıcı oluşturulur.
+                IdentityResult result = await _userManager.CreateAsync(user, model.Password.Trim());
+
+                //Kullanıcı oluşturuldu ise
+                if (result.Succeeded)
+                {
+                    bool roleExists = await _roleManager.RoleExistsAsync(_config["Roles:Admin"]);
+
+                    if (!roleExists)
+                    {
+                        IdentityRole role = new IdentityRole(_config["Roles:Admin"]);
+                        role.NormalizedName = _config["Roles:Admin"];
+
+                        _roleManager.CreateAsync(role).Wait();
+                    }
+
+                    //Kullanıcıya ilgili rol ataması yapılır.
+                    _userManager.AddToRoleAsync(user, _config["Roles:Admin"]).Wait();
+
+                    responseViewModel.IsSuccess = true;
+                    responseViewModel.Message = "Kullanıcı başarılı şekilde oluşturuldu.";
+                }
+                else
+                {
+                    responseViewModel.IsSuccess = false;
+                    responseViewModel.Message = string.Format("Kullanıcı oluşturulurken bir hata oluştu: {0}", result.Errors.FirstOrDefault().Description);
+                }
+
+                return Ok(responseViewModel);
+            }
+            catch (Exception ex)
+            {
+                responseViewModel.IsSuccess = false;
+                responseViewModel.Message = ex.Message;
+
+                return BadRequest(responseViewModel);
+            }
+        }
+
+        [AllowAnonymous]
         [HttpPost]
         [Route("Login")]
         public async Task<ActionResult> Login([FromBody] LoginViewModel model)
@@ -154,8 +234,10 @@ namespace Services.API.Controllers
                 #endregion
 
                 AppUser AppUser = _context.Users.FirstOrDefault(x => x.Id == user.Id);
+                var roleId = _context.UserRoles.Where(x => x.UserId == user.Id).Select(x => x.RoleId).FirstOrDefault();
+                var AppRole = _context.Roles.Where(x => x.Id == roleId).Select(x => x.Name).FirstOrDefault();
 
-                AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator(_context, _config, AppUser);
+                AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator(_context, _config, AppUser, AppRole);
                 AppUserTokens userTokens = accessTokenGenerator.GetToken();
 
                 responseViewModel.IsSuccess = true;
@@ -163,7 +245,9 @@ namespace Services.API.Controllers
                 responseViewModel.TokenInfo = new TokenInfo
                 {
                     Token = userTokens.Value,
-                    ExpireDate = userTokens.ExpireDate
+                    ExpireDate = userTokens.ExpireDate,
+                    Role = userTokens.Role
+                    
                 };
 
                 return Ok(responseViewModel);
@@ -175,6 +259,39 @@ namespace Services.API.Controllers
 
                 return BadRequest(responseViewModel);
             }
+        }
+
+
+        [Authorize]
+        [HttpPost]
+        [Route("Logout")]
+        public async Task<ActionResult> Logout([FromBody] LoginViewModel User)
+        {
+            AppUser user = await _userManager.FindByNameAsync(User.Email);
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            var loggedUser = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
+
+            if (loggedUser == User.Email)
+            {
+                AppUser AppUser = _context.Users.FirstOrDefault(x => x.Id == user.Id);
+                var roleId = _context.UserRoles.Where(x => x.UserId == user.Id).Select(x => x.RoleId).FirstOrDefault();
+                var AppRole = _context.Roles.Where(x => x.Id == roleId).Select(x => x.Name).FirstOrDefault();
+
+                AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator(_context, _config, AppUser, AppRole);
+                await accessTokenGenerator.DeleteToken();
+                await _signInManager.SignOutAsync();
+                var lu = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
+                Console.WriteLine(lu);
+
+                return Ok();
+            }
+
+            return BadRequest();
         }
     }
 }

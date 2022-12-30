@@ -10,5 +10,6 @@ namespace App.Library
     public class AppUserTokens : IdentityUserToken<string>
     {
         public DateTime ExpireDate { get; set; }
+        public string Role { get; set; }
     }
 }

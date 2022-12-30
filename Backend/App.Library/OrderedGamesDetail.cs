@@ -18,8 +18,8 @@ namespace App.Library
 
         ////Navigation Prop
         //public int OrderId { get; set; }
-        //public List<OrderDetail> Orders { get; set; }
-        public ICollection<GameOrderLink> Orders { get; set; }
+        public List<OrderDetail> Orders { get; set; }
+        //public ICollection<GameOrderLink> Orders { get; set; }
 
     }
 }
