@@ -39,6 +39,7 @@ namespace Services.API
                                                         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             var host = Configuration["DBHOST"] ?? "localhost";
+            Console.WriteLine(host);
             var port = Configuration["DBPORT"] ?? "3306";
             var pw = Configuration["DBPASSWORD"] ?? "123";
 

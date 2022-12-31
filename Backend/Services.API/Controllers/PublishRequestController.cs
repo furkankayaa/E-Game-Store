@@ -69,7 +69,8 @@ namespace Services.API.Controllers
             //var game = _context.GameDetails.Where(x => x.ID == request.GameId).FirstOrDefault();
             //var g = _context.GameDetails.Where(x => x.ID == request.GameId).SelectMany(c => c.Genres).ToList();
             //request.Game = game;
-            GenericResponse<PublishRequestDetail> toReturn = new GenericResponse<PublishRequestDetail> { Response = req, Code = ResponseCode.OK }; 
+            GenericResponse<PublishRequestDetail> toReturn = new GenericResponse<PublishRequestDetail> {
+                Response = req, Code = ResponseCode.OK }; 
             return toReturn;
         }
 
@@ -95,6 +96,9 @@ namespace Services.API.Controllers
         [Route("[action]")]
         public GenericResponse<PublishRequestDetail> Post(GameAndGenres data)
         {
+            var userId = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userName = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+
             var game = new GameDetail
             {
                 AvailableAgeScala = data.Game.AvailableAgeScala,
@@ -105,12 +109,11 @@ namespace Services.API.Controllers
                 GamePrice = data.Game.GamePrice,
                 ImageUrl = data.Game.ImageUrl,
                 LanguageOption = data.Game.LanguageOption,
-                Publisher = data.Game.Publisher,
+                Publisher = userName,
                 Rating = 0,
                 isApproved = false
             };
 
-            var userId = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             PublishRequestDetail gameRequest = new PublishRequestDetail
             {
