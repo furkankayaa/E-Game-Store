@@ -45,7 +45,7 @@ namespace Services.API
             var userId = Configuration["USERID"] ?? "root";
 
             var mysqlConnectionString = $"server={host};userid={userId};pwd={pw};" + $"port={port};database={dbName}";
-
+            Console.WriteLine("CONNECTION STRING = " + mysqlConnectionString);
             //services.AddDbContextPool<AuthContext>(options =>
             //options.UseMySql(mysqlConnectionString, ServerVersion.AutoDetect(mysqlConnectionString), mySqlOptions =>
             //{
