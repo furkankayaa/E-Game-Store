@@ -116,7 +116,7 @@ namespace Services.API.Controllers
             }
         }
 
-        [AllowAnonymous]
+        
         //[Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("CreateAdmin")]
