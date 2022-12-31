@@ -39,11 +39,12 @@ namespace Services.API
                                                         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             var host = Configuration["DBHOST"] ?? "localhost";
-            Console.WriteLine(host);
             var port = Configuration["DBPORT"] ?? "3306";
             var pw = Configuration["DBPASSWORD"] ?? "123";
+            var dbName = Configuration["DBNAME"] ?? "StoreDB";
+            var userId = Configuration["USERID"] ?? "root";
 
-            var mysqlConnectionString = $"server={host};userid=root;pwd={pw};" + $"port={port};database=StoreDB";
+            var mysqlConnectionString = $"server={host};userid={userId};pwd={pw};" + $"port={port};database={dbName}";
 
             //services.AddDbContextPool<AuthContext>(options =>
             //options.UseMySql(mysqlConnectionString, ServerVersion.AutoDetect(mysqlConnectionString), mySqlOptions =>
