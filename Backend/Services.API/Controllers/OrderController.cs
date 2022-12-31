@@ -101,7 +101,8 @@ namespace Services.API.Controllers
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 
                 // Send an HTTP GET request to the GetAll action of the CartController
-                HttpResponseMessage response = await client.GetAsync("http://localhost:5000/api/cart/getall");
+                //HttpResponseMessage response = await client.GetAsync("http://localhost:5000/api/cart/getall");
+                HttpResponseMessage response = await client.GetAsync("https://e-gamestore.onrender.com/api/cart/getall");
 
                 // Read the response content as a list of CartItem objects
                 List<CartItemDetail> cartItems = await response.Content.ReadAsAsync<List<CartItemDetail>>();
@@ -138,7 +139,8 @@ namespace Services.API.Controllers
 
 
                     // Send an HTTP DELETE request to the DeleteAll action of the CartController
-                    var res = await client.DeleteAsync("http://localhost:5000/api/cart/deleteall");
+                    //var res = await client.DeleteAsync("http://localhost:5000/api/cart/deleteall");
+                    var res = await client.DeleteAsync("https://e-gamestore.onrender.com/api/cart/deleteall");
 
                     _context.SaveChanges();
 
