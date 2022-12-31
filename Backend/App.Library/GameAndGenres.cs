@@ -10,6 +10,5 @@ namespace App.Library
     {
         public GameProps Game { get; set; }
         public List<int> GenreIds { get; set; }
-        public string UserId { get; set; }
     }
 }

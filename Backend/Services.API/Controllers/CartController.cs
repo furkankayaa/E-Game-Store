@@ -24,72 +24,90 @@ namespace Services.API.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public GenericResponse<List<CartItemDetail>> GetAll(string userId)
+        public ActionResult GetAll()
         {
+            var userId = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             //var cartItems = _context.CartItemDetails.ToList();
-            var cartItems = _context.CartItemDetails.ToList().Where(x => x.UserID == userId).ToList();
+            var cartItems = _context.CartItemDetails.Where(x => x.UserID == userId)
+                .Select(x => new
+                {
+                    x.ID,
+                    x.GameId,
+                    x.GameName,
+                    x.GamePrice,
+                    x.ImageUrl,
+                    x.Publisher
+                })
+                .ToList();
 
-            GenericResponse<List<CartItemDetail>> toReturn = new GenericResponse<List<CartItemDetail>>() { Response = cartItems, Code = ResponseCode.OK };
-
-            return toReturn;
+            return Ok(cartItems);
         }
 
         [Route("[action]")]
         [HttpPost]
-        public GenericResponse<CartItemDetail> Post([FromBody] CartItemDetail game)
+        public ActionResult Post([FromBody] int gameId)
         {
-            CartItemDetail addItem = new CartItemDetail {GameName = game.GameName, GamePrice = game.GamePrice, ImageUrl = game.ImageUrl, Publisher = game.Publisher, UserID = game.UserID };
+            var userId = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var Exists = _context.CartItemDetails.Where(x => x.GameName == addItem.GameName && x.UserID == addItem.UserID).FirstOrDefault();
-            if (Exists == null)
-            {
-                _context.CartItemDetails.Add(addItem);
-                _context.SaveChanges();
-                GenericResponse<CartItemDetail> toReturn = new GenericResponse<CartItemDetail> { Response = addItem, Code = ResponseCode.OK };
-                return toReturn;
-            }
-            else
-            {
-                return new GenericResponse<CartItemDetail> { Response = null, Code = ResponseCode.BadRequest };
-            }
+            var g = _context.GameDetails.Where(x => x.ID == gameId && x.isApproved == true).FirstOrDefault();
 
+            if (g != null)
+            {
+                CartItemDetail addItem = new CartItemDetail { GameId= g.ID, GameName = g.GameName, GamePrice = g.GamePrice, ImageUrl = g.ImageUrl, Publisher = g.Publisher, UserID = userId };
+
+                var Exists = _context.CartItemDetails.Where(x => x.GameId == addItem.GameId && x.UserID == addItem.UserID).FirstOrDefault();
+                if (Exists == null)
+                {
+                    _context.CartItemDetails.Add(addItem);
+                    _context.SaveChanges();
+
+                    return Ok();
+                }
+
+            }
             
+            return BadRequest();
+            
+
         }
 
 
         [HttpDelete("[action]")]
-        public GenericResponse<CartItemDetail> Delete(int id, string userId)
+        public ActionResult Delete(int id)
         {
+            var userId = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var toDelete = _context.CartItemDetails.Find(id);
-            if (toDelete.UserID == userId)
+            if (toDelete?.UserID == userId)
             {
                 _context.CartItemDetails.Remove(toDelete);
                 _context.SaveChanges();
 
-                GenericResponse<CartItemDetail> toReturn = new GenericResponse<CartItemDetail>() { Response = toDelete, Code = ResponseCode.OK };
-                return toReturn;
+                return Ok();
             }
 
-            return new GenericResponse<CartItemDetail>() { Response = null, Code = ResponseCode.BadRequest }; 
+            return BadRequest(); 
 
 
         }
 
         [HttpDelete("[action]")]
-        public GenericResponse<List<CartItemDetail>> DeleteAll(string userId)
+        public ActionResult DeleteAll()
         {
+            var userId = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var toDelete = _context.CartItemDetails.Where(x => x.UserID == userId).ToList();
 
-            foreach (var item in toDelete)
+            if (toDelete.Count() != 0)
             {
-                _context.CartItemDetails.Remove(item);
+                _context.CartItemDetails.RemoveRange(toDelete);
                 _context.SaveChanges();
+                return Ok();
+
             }
+            return BadRequest("No cart items to delete!");
 
-            GenericResponse<List<CartItemDetail>> toReturn = new GenericResponse<List<CartItemDetail>> { Response = toDelete, Code = ResponseCode.OK };
-
-            return toReturn;
         }
     }
 }

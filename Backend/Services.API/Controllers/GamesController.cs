@@ -11,12 +11,13 @@ using App.Library;
 using Newtonsoft.Json.Linq;
 using Services.API.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace Services.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [EnableCors()]
+    //[EnableCors()]
     [Route("api/[controller]")]
     public class GamesController : ControllerBase
     {
@@ -46,75 +47,169 @@ namespace Services.API.Controllers
         //REIMPLEMENT
         [HttpGet]
         [Route("[action]")]
-        public GenericResponse<List<GameDetailResponse>> GetAll()
+        public GenericResponse<List<GameDetail>> GetAll()
         {
-            var games_list = _context.GameDetails.ToList();
+            var games_list = _context.GameDetails.Where(x => x.isApproved == true).ToList();
 
             //foreach (var k in toAdd)
             //{
             //    _context.GameDetails.Add(k);
             //}
             //_context.SaveChanges();
-            List<GameDetailResponse> allGames = new List<GameDetailResponse>();
-            foreach (var i in games_list)
+
+            //List<GameDetailResponse> allGames = new List<GameDetailResponse>();
+            //foreach (var i in games_list)
+            //{
+            //    allGames.Add(GetRequest.GetGameDetailResponse(i));
+            //}
+            //GenericResponse<List<GameDetailResponse>> toReturn = new GenericResponse<List<GameDetailResponse>> { Response = allGames, Code=ResponseCode.OK };
+
+
+            var toReturn = new GenericResponse<List<GameDetail>> { };
+
+            foreach (var g in games_list)
             {
-                allGames.Add(GetRequest.GetGameDetailResponse(i));
+                var genres = _context.GenreDetails.Where(x => x.Games.Contains(g)).ToList();
+                g.Genres = genres;
             }
-            GenericResponse<List<GameDetailResponse>> toReturn = new GenericResponse<List<GameDetailResponse>> { Response = allGames, Code=ResponseCode.OK };
+            toReturn.Response = games_list;
+            toReturn.Code = ResponseCode.OK;
+
 
             return toReturn;
+            
         }
 
-        //REIMPLEMENT
+
         [HttpGet]
         [Route("GetById/{id}")]
-        public async Task<GenericResponse<GameDetailResponse>> GetByIdAsync(int id)
+        public async Task<ActionResult> GetByIdAsync(int id)
         {
             var game = await _context.GameDetails.FindAsync(id);
 
-            GameDetailResponse myResponse = GetRequest.GetGameDetailResponse(game);
-            GenericResponse<GameDetailResponse> toReturn = new GenericResponse<GameDetailResponse> { Response = myResponse, Code = ResponseCode.OK };
+            if (game != null && game.isApproved == true)
+            {
+                var genres = _context.GenreDetails.Where(x => x.Games.Contains(game)).ToList();
+                game.Genres = genres;
 
-            return toReturn;
-
-        }
-
-
-        //If Admin accepts the publish request posts the game details here
-        [HttpPost]
-        [Route("[action]")]
-        public GenericResponse<GameDetail> Post(GameDetail publishGame)
-        {
-
-            //Requestin adminden gelip gelmediğini kontrol et!!
+                //GameDetailResponse myResponse = GetRequest.GetGameDetailResponse(game);
+                //GenericResponse<GameDetailResponse> toReturn = new GenericResponse<GameDetailResponse> { Response = myResponse, Code = ResponseCode.OK };
 
             
+                return Ok(game);
+            }
+            return NotFound();            
 
-            //Oyunu GameDetails tablosuna ekle 
-            _context.GameDetails.Add(publishGame);
-
-
-
-
-            //MANY TO MANY DÜZELTİRKEN YORUMA ALDIM SONRADAN BAK!
-            //GameGenreLinks tablosuna relationları ekle
-            //foreach (var genre in publishGame.Genres)
-            //{
-            //    _context.GameGenreLinks.Add(
-            //        new GameGenreLink()
-            //        {
-            //            Game = publishGame,
-            //            Genre = genre
-            //        }
-            //    );
-            //}
-
-
-            _context.SaveChanges();
-            GenericResponse<GameDetail> toReturn = new GenericResponse<GameDetail> { Response = publishGame, Code = ResponseCode.OK };
-
-            return toReturn;
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public IActionResult GetGamesByGenre([FromQuery] int[] genreIds)
+        {
+            var games = _context.GameDetails
+            .Include(g => g.Genres)
+            .Where(g => g.Genres.Any(genre => genreIds.Contains(genre.GenreID)) && g.isApproved == true)
+            .Select( g => new
+            {
+                g.ID,
+                g.GameName,
+                g.GamePrice,
+                g.Description,
+                g.ChildrenSuitable,
+                g.AvailableAgeScala,
+                g.GameApk,
+                g.ImageUrl,
+                g.LanguageOption,
+                g.Publisher,
+                g.Rating,
+                g.ReleaseDate,
+                Genres = g.Genres.Select(gen => new
+                {
+                    GenreID = gen.GenreID,
+                    CategoryName = gen.CategoryName
+                })
+            })
+            .ToList();
+
+            //var games = new List<GameDetail>();
+            //foreach (var gId in genreIds)
+            {
+                //var genre = _context.GenreDetails.Where(x => x.GenreID == gId).FirstOrDefault();
+                //var genreGames = _context.GameDetails.Where(x => x.Genres.Select(gen => gen.GenreID)).;
+                //games.AddRange(genreGames);
+            }
+
+            return Ok(games);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public IActionResult SearchGames(string searchTerm)
+        {
+            var games = _context.GameDetails
+                .Where(g => g.GameName.Contains(searchTerm) && g.isApproved == true)
+                .ToList();
+
+            foreach (var g in games)
+            {
+                g.Genres = _context.GenreDetails.Where(x => x.Games.Contains(g)).ToList();
+            }
+            return Ok(games);
+        }
+
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete]
+        [Route("[action]")]
+        public ActionResult Delete(int id)
+        {
+            var game = _context.GameDetails.Find(id);
+
+            if (game != null)
+            {
+                _context.GameDetails.Remove(game);
+                _context.SaveChanges();
+
+                return Ok(game.GameName + " is removed from GameDetails Table.");
+            }
+            return NotFound();
+        }
+
+        //If Admin accepts the publish request posts the game details here
+        //[HttpPost]
+        //[Route("[action]")]
+        //public GenericResponse<GameDetail> Post(GameDetail publishGame)
+        //{
+
+        //Requestin adminden gelip gelmediğini kontrol et!!
+
+
+
+        //Oyunu GameDetails tablosuna ekle 
+        //_context.GameDetails.Add(publishGame);
+
+
+
+
+        //MANY TO MANY DÜZELTİRKEN YORUMA ALDIM SONRADAN BAK!
+        //GameGenreLinks tablosuna relationları ekle
+        //foreach (var genre in publishGame.Genres)
+        //{
+        //    _context.GameGenreLinks.Add(
+        //        new GameGenreLink()
+        //        {
+        //            Game = publishGame,
+        //            Genre = genre
+        //        }
+        //    );
+        //}
+
+
+        //    _context.SaveChanges();
+        //    GenericResponse<GameDetail> toReturn = new GenericResponse<GameDetail> { Response = publishGame, Code = ResponseCode.OK };
+
+        //    return toReturn;
+        //}
 
         //Delete method ekle
 

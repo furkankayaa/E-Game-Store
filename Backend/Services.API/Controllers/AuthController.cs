@@ -193,8 +193,22 @@ namespace Services.API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        [Route("Login")]
-        public async Task<ActionResult> Login([FromBody] LoginViewModel model)
+        [Route("UserLogin")]
+        public async Task<ActionResult> UserLogin([FromBody] LoginViewModel model)
+        {
+            return await LoginAsync(model, "User");
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("AdminLogin")]
+        public async Task<ActionResult> AdminLogin([FromBody] LoginViewModel model)
+        {
+            return await LoginAsync(model, "Admin");
+        }
+
+
+        private async Task<ActionResult> LoginAsync(LoginViewModel model, string role)
         {
             ResponseViewModel responseViewModel = new ResponseViewModel();
 
@@ -236,21 +250,28 @@ namespace Services.API.Controllers
                 AppUser AppUser = _context.Users.FirstOrDefault(x => x.Id == user.Id);
                 var roleId = _context.UserRoles.Where(x => x.UserId == user.Id).Select(x => x.RoleId).FirstOrDefault();
                 var AppRole = _context.Roles.Where(x => x.Id == roleId).Select(x => x.Name).FirstOrDefault();
-
-                AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator(_context, _config, AppUser, AppRole);
-                AppUserTokens userTokens = accessTokenGenerator.GetToken();
-
-                responseViewModel.IsSuccess = true;
-                responseViewModel.Message = "Kullanıcı giriş yaptı.";
-                responseViewModel.TokenInfo = new TokenInfo
+                if (AppRole == role)
                 {
-                    Token = userTokens.Value,
-                    ExpireDate = userTokens.ExpireDate,
-                    Role = userTokens.Role
-                    
-                };
+                    AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator(_context, _config, AppUser, AppRole);
+                    AppUserTokens userTokens = accessTokenGenerator.GetToken();
 
-                return Ok(responseViewModel);
+                    responseViewModel.IsSuccess = true;
+                    responseViewModel.Message = "Kullanıcı giriş yaptı.";
+                    responseViewModel.TokenInfo = new TokenInfo
+                    {
+                        Token = userTokens.Value,
+                        ExpireDate = userTokens.ExpireDate,
+                        Role = userTokens.Role
+
+                    };
+
+                    return Ok(responseViewModel);
+                }
+                else
+                {
+                    return Unauthorized("Only " + role +  "s can login.");
+                }
+
             }
             catch (Exception ex)
             {
@@ -262,36 +283,38 @@ namespace Services.API.Controllers
         }
 
 
-        [Authorize]
-        [HttpPost]
-        [Route("Logout")]
-        public async Task<ActionResult> Logout([FromBody] LoginViewModel User)
-        {
-            AppUser user = await _userManager.FindByNameAsync(User.Email);
+        //[Authorize]
+        //[HttpPost]
+        //[Route("Logout")]
+        //public async Task<ActionResult> Logout([FromBody] LoginViewModel User)
+        //{
+        //    AppUser user = await _userManager.FindByNameAsync(User.Email);
 
-            if (user == null)
-            {
-                return BadRequest();
-            }
+        //    if (user == null)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            var loggedUser = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
+        //    //bearerdan user a bak / token dbde var mı ona bak
 
-            if (loggedUser == User.Email)
-            {
-                AppUser AppUser = _context.Users.FirstOrDefault(x => x.Id == user.Id);
-                var roleId = _context.UserRoles.Where(x => x.UserId == user.Id).Select(x => x.RoleId).FirstOrDefault();
-                var AppRole = _context.Roles.Where(x => x.Id == roleId).Select(x => x.Name).FirstOrDefault();
+        //    var loggedUser = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
 
-                AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator(_context, _config, AppUser, AppRole);
-                await accessTokenGenerator.DeleteToken();
-                await _signInManager.SignOutAsync();
-                var lu = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
-                Console.WriteLine(lu);
+        //    if (loggedUser == User.Email)
+        //    {
+        //        AppUser AppUser = _context.Users.FirstOrDefault(x => x.Id == user.Id);
+        //        var roleId = _context.UserRoles.Where(x => x.UserId == user.Id).Select(x => x.RoleId).FirstOrDefault();
+        //        var AppRole = _context.Roles.Where(x => x.Id == roleId).Select(x => x.Name).FirstOrDefault();
 
-                return Ok();
-            }
+        //        AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator(_context, _config, AppUser, AppRole);
+        //        await accessTokenGenerator.DeleteToken();
+        //        await _signInManager.SignOutAsync();
+        //        var lu = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
+        //        Console.WriteLine(lu);
 
-            return BadRequest();
-        }
+        //        return Ok();
+        //    }
+
+        //    return BadRequest();
+        //}
     }
 }

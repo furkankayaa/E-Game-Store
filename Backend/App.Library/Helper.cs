@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,7 +22,7 @@ namespace App.Library
             return false;
         }
 
-        public static bool isCartItem(GameDetailResponse game, List<CartItemDetail> cart)
+        public static bool isCartItem(GameDetail game, List<CartItemDetail> cart)
         {
             if (cart.Where(x => x.GameName == game.GameName).FirstOrDefault() != null)
             {
@@ -29,5 +30,7 @@ namespace App.Library
             }
             return false;
         }
+
+        
     }
 }

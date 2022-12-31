@@ -42,6 +42,7 @@ namespace Services.API.Controllers
             //    _context.GenreDetails.Add(k);
             //}
             //_context.SaveChanges();
+
             var found = _context.GenreDetails.ToList();
             return Ok(found);
         }
