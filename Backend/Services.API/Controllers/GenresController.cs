@@ -65,6 +65,7 @@ namespace Services.API.Controllers
             {
                 var toAdd = new GenreDetail { CategoryName = genreName };
                 _context.GenreDetails.Add(toAdd);
+                _context.SaveChanges();
                 return Ok();
             }
             return BadRequest();
