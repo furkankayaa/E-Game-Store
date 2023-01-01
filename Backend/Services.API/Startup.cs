@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -45,7 +47,7 @@ namespace Services.API
             var userId = Configuration["USERID"] ?? "root";
 
             var mysqlConnectionString = $"server={host};userid={userId};pwd={pw};" + $"port={port};database={dbName}";
-            Console.WriteLine("CONNECTION STRING = " + mysqlConnectionString);
+
             //services.AddDbContextPool<AuthContext>(options =>
             //options.UseMySql(mysqlConnectionString, ServerVersion.AutoDetect(mysqlConnectionString), mySqlOptions =>
             //{
@@ -60,6 +62,7 @@ namespace Services.API
                     }));
 
             services.AddCors();
+            
 
             services.AddIdentity<AppUser, IdentityRole>()
                     .AddRoleManager<RoleManager<IdentityRole>>()
@@ -144,6 +147,7 @@ namespace Services.API
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
+
 
             app.UseAuthentication();
             app.UseRouting();

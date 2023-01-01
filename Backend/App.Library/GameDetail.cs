@@ -10,6 +10,7 @@ namespace App.Library
     {
         public int ID { get; set; }
         public string ImageUrl { get; set; }
+
         public string GameName { get; set; }
         public double GamePrice { get; set; }
         public string Description { get; set; }
@@ -23,7 +24,9 @@ namespace App.Library
         public DateTime ReleaseDate { get; set; }
         public float Rating { get; set; }
         public string LanguageOption { get; set; }
+
         public string GameApk { get; set; }
+
         public bool isApproved { get; set; }
         //public int GenreID { get; set; } //many to many genredetails yap bu comment olacak
 

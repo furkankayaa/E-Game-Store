@@ -1,12 +1,15 @@
-﻿using App.Library;
+﻿using Amazon.S3;
+using App.Library;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Services.API.Data;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
@@ -22,11 +25,13 @@ namespace Services.API.Controllers
 
         private readonly ILogger<PublishRequestController> _logger;
         private readonly AuthContext _context;
-
-        public PublishRequestController( ILogger<PublishRequestController> logger, AuthContext context)
+        private readonly IConfiguration _config;
+        
+        public PublishRequestController( ILogger<PublishRequestController> logger, AuthContext context, IConfiguration config)
         {
             _logger = logger;
             _context = context;
+            _config = config;
         }
 
         [Authorize(Roles = "Admin")]
@@ -91,23 +96,71 @@ namespace Services.API.Controllers
             return Ok(requests);
         }
 
+
+        private async Task<S3Object> UploadFileAsync(IFormFile file)
+        {
+            await using var memoryStr = new MemoryStream();
+            await file.CopyToAsync(memoryStr);
+
+            var fileExt = Path.GetExtension(file.Name);
+            var objName = $"{Guid.NewGuid()}.{fileExt}";
+
+            var s3Obj = new S3Object()
+            {
+                BucketName = _config["AwsConfiguration:BucketName"],
+                InputStream = memoryStr,
+                Name = objName
+            };
+
+            var cred = new AwsCredentials()
+            {
+                AwsKey = _config["AwsConfiguration:AWSAccessKey"],
+                AwsSecretKey = _config["AwsConfiguration:AWSSecretKey"]
+            };
+
+            var service = new StorageService();
+            var result = await service.UploadFileAsync(s3Obj, cred);
+
+            return result.Object;
+        }
+
+        //private async Task<byte[]> DownloadFileAsync(string file)
+        //{
+        //    await using var memoryStr = new MemoryStream();
+
+        //    try
+        //    {
+                
+        //    }
+        //}
+
         [Authorize]
         [HttpPost]
         [Route("[action]")]
-        public GenericResponse<PublishRequestDetail> Post(GameAndGenres data)
+        public async Task<GenericResponse<PublishRequestDetail>> PostAsync(GameAndGenres data)
         {
             var userId = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userName = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+
+            //var service = new GoogleDriveService(CreateDriveService());
+            //var apkFile = service.UploadFile(data.Game.ApkName, "application/vnd.android.package-archive", data.Game.GameApkBin);
+            //var imgFile = service.UploadFile(data.Game.ImageName, data.Game.ImageMimeType, data.Game.ImageBin);
+
+            var apkFile = data.Game.ApkFile;
+            var imageFile = data.Game.ImageFile;
+
+            var apkObj = await UploadFileAsync(apkFile);
+            var imageObj = await UploadFileAsync(imageFile);
 
             var game = new GameDetail
             {
                 AvailableAgeScala = data.Game.AvailableAgeScala,
                 ChildrenSuitable = data.Game.ChildrenSuitable,
                 Description = data.Game.Description,
-                GameApk = data.Game.GameApk,
                 GameName = data.Game.GameName,
                 GamePrice = data.Game.GamePrice,
-                ImageUrl = data.Game.ImageUrl,
+                GameApk = apkObj.Name,
+                ImageUrl = imageObj.Name,
                 LanguageOption = data.Game.LanguageOption,
                 Publisher = userName,
                 Rating = 0,
