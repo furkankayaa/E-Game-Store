@@ -21,10 +21,3 @@ COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Services.API.dll"]
 
 
-
-# DBHOST=host.docker.internal
-ENV DBHOST=containers-us-west-180.railway.app \
-    DBPORT=6139 \
-    DBPASSWORD=Xe5fsezPW5uT62YJcgg1 \
-    DBNAME=railway \
-    USERID=root
