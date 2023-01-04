@@ -44,7 +44,6 @@ namespace Services.API.Controllers
         //};
         
 
-        //REIMPLEMENT
         [HttpGet]
         [Route("[action]")]
         public GenericResponse<List<GameDetail>> GetAll()
@@ -117,7 +116,6 @@ namespace Services.API.Controllers
                 g.Description,
                 g.ChildrenSuitable,
                 g.AvailableAgeScala,
-                g.GameApk,
                 g.ImageUrl,
                 g.LanguageOption,
                 g.Publisher,
@@ -211,7 +209,6 @@ namespace Services.API.Controllers
         //    return toReturn;
         //}
 
-        //Delete method ekle
 
     }
 }

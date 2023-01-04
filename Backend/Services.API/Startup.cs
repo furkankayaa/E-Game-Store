@@ -8,8 +8,10 @@ using App.Library;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,7 +64,25 @@ namespace Services.API
                     }));
 
             services.AddCors();
-            
+
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.MaxRequestBodySize = int.MaxValue;
+            });
+
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.Limits.MaxRequestBodySize = int.MaxValue; // if don't set 
+                                                                  //default value is: 30 MB
+            });
+
+            services.Configure<FormOptions>(options =>
+            {
+                options.ValueLengthLimit = int.MaxValue;
+                options.MultipartBodyLengthLimit = int.MaxValue; // if don't set 
+                                                                 //default value is: 128 MB
+                options.MultipartHeadersLengthLimit = int.MaxValue;
+            });
 
             services.AddIdentity<AppUser, IdentityRole>()
                     .AddRoleManager<RoleManager<IdentityRole>>()
@@ -148,6 +168,8 @@ namespace Services.API
             .AllowAnyMethod()
             .AllowAnyHeader());
 
+
+            //webBuilder.UseKestrel(options => { options.Limits.MaxRequestBodySize = long.MaxValue; });
 
             app.UseAuthentication();
             app.UseRouting();

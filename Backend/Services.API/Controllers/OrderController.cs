@@ -16,18 +16,16 @@ using System.Threading.Tasks;
 
 namespace Services.API.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class OrderController : ControllerBase
     {
 
-        private readonly ILogger<OrderController> _logger;
         private readonly AuthContext _context;
         private readonly IConfiguration _config;
 
-        public OrderController(ILogger<OrderController> logger, AuthContext context, IConfiguration config)
+        public OrderController(AuthContext context, IConfiguration config)
         {
-            _logger = logger;
             _context = context;
             _config = config;
         }
@@ -61,7 +59,6 @@ namespace Services.API.Controllers
                         g.ReleaseDate,
                         g.Rating,
                         g.LanguageOption,
-                        g.GameApk,
                         Genres = g.Genres.Select(gen => new
                         {
                             gen.GenreID,
@@ -134,8 +131,20 @@ namespace Services.API.Controllers
                     _context.OrderDetails.Add(Order);
 
                     //Library ye oyunu ekle
-                    //!!!!!!!!!!!!!!!!!!
+                    var userLib = _context.LibraryDetails.Where(x => x.UserId == userId).Include(x => x.Games).FirstOrDefault();
+                    if (userLib != null && userLib.Games != null)
+                    {
 
+                        userLib.Games.AddRange(orderedGames);
+                    }
+                    else if(userLib != null){
+                        userLib.Games = orderedGames;
+                    }
+                    else
+                    {
+                        var libObj = new LibraryDetail { Games = orderedGames, UserId = userId };
+                        _context.LibraryDetails.Add(libObj);
+                    }
 
 
                     // Send an HTTP DELETE request to the DeleteAll action of the CartController

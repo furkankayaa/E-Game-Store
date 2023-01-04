@@ -46,13 +46,15 @@ namespace Services.API.Controllers
 
         [Route("[action]")]
         [HttpPost]
-        public ActionResult Post([FromBody] int gameId)
+        public ActionResult Post(int gameId)
         {
             var userId = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var g = _context.GameDetails.Where(x => x.ID == gameId && x.isApproved == true).FirstOrDefault();
+            var libGames = _context.LibraryDetails.Where(x => x.UserId == userId).FirstOrDefault().Games;
 
-            if (g != null)
+            //if g isn't null and is not in the users library or there is no user library
+            if (g != null && (libGames != null && !libGames.Contains(g) || libGames == null) )
             {
                 CartItemDetail addItem = new CartItemDetail { GameId= g.ID, GameName = g.GameName, GamePrice = g.GamePrice, ImageUrl = g.ImageUrl, Publisher = g.Publisher, UserID = userId };
 

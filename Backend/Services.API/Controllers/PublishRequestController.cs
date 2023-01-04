@@ -1,4 +1,6 @@
-﻿using Amazon.S3;
+﻿using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
 using App.Library;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -26,8 +28,8 @@ namespace Services.API.Controllers
         private readonly ILogger<PublishRequestController> _logger;
         private readonly AuthContext _context;
         private readonly IConfiguration _config;
-        
-        public PublishRequestController( ILogger<PublishRequestController> logger, AuthContext context, IConfiguration config)
+
+        public PublishRequestController(ILogger<PublishRequestController> logger, AuthContext context, IConfiguration config)
         {
             _logger = logger;
             _context = context;
@@ -75,7 +77,7 @@ namespace Services.API.Controllers
             //var g = _context.GameDetails.Where(x => x.ID == request.GameId).SelectMany(c => c.Genres).ToList();
             //request.Game = game;
             GenericResponse<PublishRequestDetail> toReturn = new GenericResponse<PublishRequestDetail> {
-                Response = req, Code = ResponseCode.OK }; 
+                Response = req, Code = ResponseCode.OK };
             return toReturn;
         }
 
@@ -97,17 +99,27 @@ namespace Services.API.Controllers
         }
 
 
-        private async Task<S3Object> UploadFileAsync(IFormFile file)
+        private async Task DeleteFileAsync(string objName, string bucketName)
+        {
+            var cred = new AwsCredentials()
+            {
+                AwsKey = _config["AwsConfiguration:AWSAccessKey"],
+                AwsSecretKey = _config["AwsConfiguration:AWSSecretKey"]
+            };
+
+            var service = new StorageService();
+            await service.DeleteFileAsync(cred, objName, bucketName);
+        }
+
+        private async Task<string> UploadFileAsync(IFormFile file, string objName, string bucketName, bool makePublic)
         {
             await using var memoryStr = new MemoryStream();
             await file.CopyToAsync(memoryStr);
 
-            var fileExt = Path.GetExtension(file.Name);
-            var objName = $"{Guid.NewGuid()}.{fileExt}";
 
-            var s3Obj = new S3Object()
+            var s3Obj = new Data.S3Object()
             {
-                BucketName = _config["AwsConfiguration:BucketName"],
+                BucketName = bucketName,
                 InputStream = memoryStr,
                 Name = objName
             };
@@ -119,73 +131,80 @@ namespace Services.API.Controllers
             };
 
             var service = new StorageService();
-            var result = await service.UploadFileAsync(s3Obj, cred);
+            var objUrl = await service.UploadFileAsync(s3Obj, cred, makePublic);
 
-            return result.Object;
+            return objUrl;
         }
 
-        //private async Task<byte[]> DownloadFileAsync(string file)
-        //{
-        //    await using var memoryStr = new MemoryStream();
-
-        //    try
-        //    {
-                
-        //    }
-        //}
 
         [Authorize]
         [HttpPost]
         [Route("[action]")]
-        public async Task<GenericResponse<PublishRequestDetail>> PostAsync(GameAndGenres data)
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(400_000_000)]
+        public async Task<GenericResponse<PublishRequestDetail>> PostAsync([FromForm] GameProps a)
         {
             var userId = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userName = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
 
-            //var service = new GoogleDriveService(CreateDriveService());
-            //var apkFile = service.UploadFile(data.Game.ApkName, "application/vnd.android.package-archive", data.Game.GameApkBin);
-            //var imgFile = service.UploadFile(data.Game.ImageName, data.Game.ImageMimeType, data.Game.ImageBin);
 
-            var apkFile = data.Game.ApkFile;
-            var imageFile = data.Game.ImageFile;
+            GameAndGenres data= new GameAndGenres { Game = a, GenreIds = a.Genres};
 
-            var apkObj = await UploadFileAsync(apkFile);
-            var imageObj = await UploadFileAsync(imageFile);
-
-            var game = new GameDetail
+            if (a != null)
             {
-                AvailableAgeScala = data.Game.AvailableAgeScala,
-                ChildrenSuitable = data.Game.ChildrenSuitable,
-                Description = data.Game.Description,
-                GameName = data.Game.GameName,
-                GamePrice = data.Game.GamePrice,
-                GameApk = apkObj.Name,
-                ImageUrl = imageObj.Name,
-                LanguageOption = data.Game.LanguageOption,
-                Publisher = userName,
-                Rating = 0,
-                isApproved = false
-            };
+                var apkFile = a.ApkFile;
+                var imageFile = a.ImageFile;
+                var fileExt = Path.GetExtension(apkFile.Name);
+                var apkNewName = $"{Guid.NewGuid()}.{fileExt}";
+
+                var imgFileExt = Path.GetExtension(imageFile.Name);
+                var imgNewName = $"{Guid.NewGuid()}.{imgFileExt}";
+
+                var privateBucket = _config["AwsConfiguration:PrivateBucket"];
+                var publicBucket = _config["AwsConfiguration:PublicBucket"];
+
+                var apkObjUrl = UploadFileAsync(apkFile, apkNewName, privateBucket, false);
+                var imgObjUrl = UploadFileAsync(imageFile, imgNewName, publicBucket, true);
+
+                var game = new GameDetail
+                {
+                    AvailableAgeScala = data.Game.AvailableAgeScala,
+                    ChildrenSuitable = data.Game.ChildrenSuitable,
+                    Description = data.Game.Description,
+                    GameName = data.Game.GameName,
+                    GamePrice = data.Game.GamePrice,
+                    GameApkName = apkNewName,
+                    ImageName = imgNewName,
+                    ImageUrl = await imgObjUrl,
+                    LanguageOption = data.Game.LanguageOption,
+                    Publisher = userName,
+                    Rating = 0,
+                    isApproved = false
+                };
 
 
-            PublishRequestDetail gameRequest = new PublishRequestDetail
-            {
-                UserId = userId,
-                RequestDate = DateTime.Now
-            };
+                PublishRequestDetail gameRequest = new PublishRequestDetail
+                {
+                    UserId = userId,
+                    RequestDate = DateTime.Now
+                };
 
-            gameRequest.Game = game;
+                gameRequest.Game = game;
 
-            var genres = _context.GenreDetails.Where(x => data.GenreIds.Contains(x.GenreID)).ToList();
+                var genres = _context.GenreDetails.Where(x => data.GenreIds.Contains(x.GenreID)).ToList();
 
-            gameRequest.Game.Genres = genres;
+                gameRequest.Game.Genres = genres;
 
-            _context.PublishRequestDetails.Add(gameRequest);
-            _context.SaveChanges();
+                _context.PublishRequestDetails.Add(gameRequest);
+                _context.SaveChanges();
 
-            GenericResponse<PublishRequestDetail> toReturn = new GenericResponse<PublishRequestDetail> { Response = gameRequest, Code = ResponseCode.OK };
+                GenericResponse<PublishRequestDetail> toReturn = new GenericResponse<PublishRequestDetail> { Response = gameRequest, Code = ResponseCode.OK };
+                await apkObjUrl;
 
-            return toReturn;
+                return toReturn;
+            }
+            GenericResponse<PublishRequestDetail> Error = new GenericResponse<PublishRequestDetail> { Response = null, Code = ResponseCode.BadRequest };
+            return Error;
         }
 
         [Authorize(Roles = "Admin")]
@@ -207,41 +226,43 @@ namespace Services.API.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("[action]")]
-        public ActionResult Reject (int requestId)
+        public async Task<ActionResult> RejectAsync (int requestId)
         {
             var request = _context.PublishRequestDetails.Find(requestId);
             var del_game = _context.GameDetails.Find(request.GameId);
-            _context.GameDetails.Remove(del_game);
+
+            if (del_game != null)
+            {
+                //Delete Image from db
+                //await DeleteFileAsync(del_game.ImageName, _config["AwsConfiguration:PublicBucket"]);
+                //Delete Apk from db
+                //await DeleteFileAsync(del_game.GameApkName, _config["AwsConfiguration:PrivateBucket"]);
+
+                _context.GameDetails.Remove(del_game);
+            }
+            else
+            {
+                Delete(requestId);
+                _context.SaveChanges();
+
+                return BadRequest("No game found, Request is deleted anyways.");
+            }
 
             Delete(requestId);
-
             _context.SaveChanges();
+
             return Ok();
         }
 
-
-        ////Sadece admin yapacak
-        //[Authorize(Roles = "Admin")]
-        //[HttpDelete]
-        //[Route("[action]")]
         private void Delete(int id)
         {
 
-            //var role = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Role);
-            //Console.WriteLine(role);
             var toDelete = _context.PublishRequestDetails.Find(id);
             if (toDelete != null)
             {
                 _context.PublishRequestDetails.Remove(toDelete);
                 _context.SaveChanges();
-
-                //return new GenericResponse<PublishRequestDetail> { Response = toDelete, Code = ResponseCode.OK };
-
             }
-
-            //var toReturn = new GenericResponse<PublishRequestDetail> { Response = toDelete, Code = ResponseCode.BadRequest };
-            //return toReturn;
         }
-        
     }
 }
