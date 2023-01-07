@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Services.API.Data;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -284,6 +285,51 @@ namespace Services.API.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult ValidateToken()
+        {
+            // get the token from the request header
+            string token = Request.Headers["Authorization"];
+
+            // validate the token and return a response
+            if (IsTokenValid(token))
+            {
+                return Ok(); // the token is valid
+            }
+            else
+            {
+                return Unauthorized(); // the token is invalid or has expired
+            }
+        }
+
+        private bool IsTokenValid(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                return false;
+            }
+
+            try
+            {
+                // parse and decode the token
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+
+                // check the expiration date of the token
+                if (jwtToken.ValidTo < DateTime.UtcNow)
+                {
+                    return false; // the token has expired
+                }
+
+                // the token is valid
+                return true;
+            }
+            catch (Exception)
+            {
+                // the token is invalid
+                return false;
+            }
+        }
 
         //[Authorize]
         //[HttpPost]
