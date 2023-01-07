@@ -312,8 +312,9 @@ namespace Services.API.Controllers
             try
             {
                 // parse and decode the token
+                string[] parts = token.Split(' ');
                 var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+                var jwtToken = handler.ReadToken(parts[1]) as JwtSecurityToken;
 
                 // check the expiration date of the token
                 if (jwtToken.ValidTo < DateTime.UtcNow)
