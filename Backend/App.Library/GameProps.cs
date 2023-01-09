@@ -13,11 +13,14 @@ namespace App.Library
         public IFormFile ApkFile { get; set; }
         public IFormFile ImageFile { get; set; }
         public string GameName { get; set; }
-        public double GamePrice { get; set; }
+        //public double GamePrice { get; set; }
+        public string GamePrice { get; set; }
         public string Description { get; set; }
-        public bool ChildrenSuitable { get; set; }
+        //public bool ChildrenSuitable { get; set; }
+        public string ChildrenSuitable { get; set; }
         public string AvailableAgeScala { get; set; }
         public string LanguageOption { get; set; }
-        public List<int> Genres { get; set; }
+        //public List<int> Genres { get; set; }
+        public string Genres { get; set; }
     }
 }

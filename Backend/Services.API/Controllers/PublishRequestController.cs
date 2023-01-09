@@ -147,8 +147,16 @@ namespace Services.API.Controllers
             var userId = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userName = _context.httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
 
-
-            GameAndGenres data= new GameAndGenres { Game = a, GenreIds = a.Genres};
+            //var game_converted = new GameDetail
+            //{
+            //    AvailableAgeScala = a.AvailableAgeScala,
+            //    ChildrenSuitable = Convert.ToBoolean(a.ChildrenSuitable),
+            //    Description = a.Description,
+            //    GameName = a.GameName,
+            //    GamePrice = Convert.ToDouble(a.GamePrice),
+            //    LanguageOption = a.LanguageOption
+            //};
+            GameAndGenres data= new GameAndGenres { Game = a , GenreIds = new List<int> { Convert.ToInt32(a.Genres) } };
 
             if (a != null)
             {
@@ -169,10 +177,10 @@ namespace Services.API.Controllers
                 var game = new GameDetail
                 {
                     AvailableAgeScala = data.Game.AvailableAgeScala,
-                    ChildrenSuitable = data.Game.ChildrenSuitable,
+                    ChildrenSuitable = Convert.ToBoolean(data.Game.ChildrenSuitable),
                     Description = data.Game.Description,
                     GameName = data.Game.GameName,
-                    GamePrice = data.Game.GamePrice,
+                    GamePrice = Convert.ToDouble(data.Game.GamePrice),
                     GameApkName = apkNewName,
                     ImageName = imgNewName,
                     ImageUrl = await imgObjUrl,
