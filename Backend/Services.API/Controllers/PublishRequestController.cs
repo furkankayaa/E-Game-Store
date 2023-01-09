@@ -210,16 +210,23 @@ namespace Services.API.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("[action]")]
-        public ActionResult Approve(int requestId)
+        public ActionResult Approve([FromQuery]int requestId)
         {
             var request = _context.PublishRequestDetails.Find(requestId);
-            var approve_game = _context.GameDetails.Find(request.GameId);
-            approve_game.isApproved = true;
+            if (request != null)
+            {
+                var approve_game = _context.GameDetails.Find(request.GameId);
+                approve_game.isApproved = true;
 
-            Delete(requestId);
+                Delete(requestId);
+                _context.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
 
-            _context.SaveChanges();
-            return Ok();
         }
 
 
