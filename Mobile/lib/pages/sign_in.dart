@@ -68,21 +68,23 @@ class Body extends StatelessWidget {
   );
 
   Future<String?> attemptLogIn(String email, String password) async {
-    final uri = Uri.parse("http://10.0.2.2:5000/api/Auth/login");
+    //final uri = Uri.parse("http://10.0.2.2:5000/api/Auth/UserLogin");
+    final uri = Uri.parse("https://e-gamestore.onrender.com/api/Auth/UserLogin");
+    
     var res = await http.post(
       uri,
       headers: {
         "Accept": "application/json",
         "content-type": "application/json"
       },
-      body: jsonEncode({'email': "user@example.com", 'password': "Trabzon61."}),
+      body: jsonEncode({'email': email, 'password': password}),
     );
     if (res.statusCode == 200){
       var result = AccessToken.fromJson(jsonDecode(res.body));
       return result.token.token;
   
       } 
-    return null; //string must be returned so i changed it into string
+    return null;
   }
 
   @override
@@ -95,8 +97,8 @@ class Body extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            const SizedBox(height: 100.0),
-            Image.asset("images/controller.png"),
+            const SizedBox(height: 60.0),
+            Image.asset("images/pp.png", height: 250, width: 250,),
             const SizedBox(height: 50.0),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -148,6 +150,7 @@ class Body extends StatelessWidget {
                   ),
                 ),
                 TextField(
+                  obscureText: true,
                   textAlign: TextAlign.center,
                   controller: _passwordController,
                   decoration: InputDecoration(
@@ -167,12 +170,12 @@ class Body extends StatelessWidget {
                   ),
                   onPressed: () async {
 
-                    var username = _emailController.text;
+                      var username = _emailController.text;
                       var password = _passwordController.text;
                       
-                      var jwt = await attemptLogIn(username, password);
-                      if (jwt != null) {
-                        storage.write(key: "jwt", value: jwt);
+                      var token = await attemptLogIn(username, password);
+                      if (token != null) {
+                        storage.write(key: "token", value: token);
                         Navigator.push(
                             context,
                             MaterialPageRoute(

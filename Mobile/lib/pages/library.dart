@@ -1,8 +1,16 @@
+//import 'dart:html';
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:deneme_app/pages/game_details.dart';
 import 'dart:convert' show ascii, base64, json, jsonEncode, jsonDecode;
 import 'package:deneme_app/utils.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:url_launcher/url_launcher.dart';
+//import 'package:downloads_path_provider_28/downloads_path_provider_28.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class GenresClass {
   final int genreID;
@@ -32,8 +40,6 @@ class GameClass {
   final String releaseDate;
   final double rating;
   final String languageOption;
-  //final String gameApk;
-  final bool isApproved;
   final List<GenresClass> genres;
   GameClass({
     required this.id,
@@ -47,8 +53,6 @@ class GameClass {
     required this.releaseDate,
     required this.rating,
     required this.languageOption,
-    //required this.gameApk,
-    required this.isApproved,
     required this.genres,
   });
 
@@ -65,9 +69,7 @@ class GameClass {
       availableAgeScala: json["availableAgeScala"], 
       releaseDate: json["releaseDate"], 
       rating: json["rating"], 
-      languageOption: json["languageOption"], 
-      //gameApk: json["gameApk"], 
-      isApproved: json["isApproved"], 
+      languageOption: json["languageOption"],
       genres: list.map((i) => GenresClass.fromJson(i)).toList(),
       );
   }
@@ -76,17 +78,17 @@ class GameClass {
 
 class GameResponse {
   late final List<GameClass> response;
-  final int code;
+  //final int code;
   GameResponse({
     required this.response,
-    required this.code,
+    //required this.code,
   });
 
   factory GameResponse.fromJson(Map<String, dynamic> json) {
-    var list = json["response"] as List;
+    var list = json["games"] as List;
     return GameResponse(
       response: list.map((i) => GameClass.fromJson(i)).toList(),
-      code: json["code"],
+      //code: json["code"],
     );
   }
 }
@@ -102,7 +104,6 @@ class CardData{
   CardData(String name,double price,String description,String category,String imgPath, int id){
     this.name = name;
     this.price = price;
-    //this.rating = rating;
     this.description = description;
     this.category = category;
     this.imgPath = imgPath;
@@ -111,14 +112,15 @@ class CardData{
 }
 
 
+String downloadPath = "images/download.png";
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class Library extends StatelessWidget {
+  Library({super.key});
   
-  Future<List<CardData?>?> getAllGames() async {
+  Future<List<CardData?>?> getLibrary() async {
     String? jwt_token = await storage.read(key: 'token');
     //final uri = Uri.parse("http://10.0.2.2:5000/api/Games/GetAll");
-    final uri = Uri.parse("https://e-gamestore.onrender.com/api/Games/GetAll");
+    final uri = Uri.parse("https://e-gamestore.onrender.com/api/Library/GetAll");
     var res = await http.get(
       uri,
       headers: {
@@ -139,6 +141,45 @@ class HomePage extends StatelessWidget {
     return null; //string must be returned so i changed it into string
   }
 
+  Future<String?> downloadFile(int id) async {
+    String? jwt_token = await storage.read(key: 'token');
+    final uri = Uri.parse("https://e-gamestore.onrender.com/api/Library/Download?id=$id");
+    var res = await http.get(
+      uri,
+      headers: {
+        "Authorization": "bearer $jwt_token",
+        "Accept": "application/json",
+        "content-type": "application/json"
+      },
+    );
+    if (res.statusCode == 200){
+      //Directory appDocdir = await getApplicationDocumentsDirectory();
+      
+      String filePath = '/storage/emulated/0/Download';
+      var file = File(filePath+"/game.apk");
+      return res.body;
+      } 
+    return null;
+  }
+
+
+  Future<bool?> downloadGame(int id) async {
+    String? jwt_token = await storage.read(key: 'token');
+    final uri = Uri.parse("https://e-gamestore.onrender.com/api/Library/Download?id=$id");
+    var res = await http.get(
+      uri,
+      headers: {
+        "Authorization": "bearer $jwt_token",
+        "Accept": "application/json",
+        "content-type": "application/json"
+      },
+    );
+    if (res.statusCode == 200){
+      return true;
+    } 
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     
@@ -146,7 +187,7 @@ class HomePage extends StatelessWidget {
       backgroundColor: Color(0xFFFCFAF8),
       body: Center(
         child: FutureBuilder(
-          future: getAllGames(),
+          future: getLibrary(),
           builder:(context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done){
               if(snapshot.hasError){
@@ -182,20 +223,7 @@ class HomePage extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: 5.0, bottom: 5.0, left: 5.0, right: 5.0),
       child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => GameDetail(
-                assetPath: imgPath,
-                gamePrice: price,
-                gameName: name,
-                gameDescription: description,
-                gameCategory: category,
-                gameId: gameId,
-              ),
-            ),
-          );
-        },
+        onTap: () {},
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15.0),
@@ -224,7 +252,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 7.0),
-              Text(price.toString(),
+              Text(category,
                   style: TextStyle(
                       color: Color(0xFFCC8053),
                       fontFamily: 'Varela',
@@ -237,25 +265,25 @@ class HomePage extends StatelessWidget {
               Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Container(color: Color(0xFFEBEBEB), height: 1.0)),
-              Padding(
-                padding: EdgeInsets.only(left: 5.0, right: 5.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(category,
-                      style: TextStyle(
-                        color: Color(0xFFCC8053),
-                        fontFamily: 'Varela',
-                        fontSize: 14.0)),
-                    SizedBox(height: 5),
-                    Text(price.toString(),
-                      style: TextStyle(
-                        color: Color(0xFFCC8053),
-                        fontFamily: 'Varela',
-                        fontSize: 14.0)),
-                  ],
+              Hero(
+                tag: imgPath,
+                child: InkWell(
+                  onTap: () async {
+                    final link;
+                    link = await downloadFile(gameId);
+                    final uri = Uri.parse(link);
+                    await launchUrl(uri);
+                  },
+                  child: Container(
+                    height: 40.0,
+                    width: 40.0,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage(downloadPath), fit: BoxFit.contain),
+                    ),
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),

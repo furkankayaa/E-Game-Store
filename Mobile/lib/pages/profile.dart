@@ -1,3 +1,4 @@
+import 'package:deneme_app/pages/library.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:deneme_app/utils.dart';
@@ -5,6 +6,8 @@ import 'package:deneme_app/pages/sign_in.dart';
 
 class UserProfile extends StatelessWidget {
   const UserProfile({super.key});
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +25,7 @@ class UserProfile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 60.0,),
             Container(
               // autogroupctmzPbu (Y7qMc3Zcp5tWNb1pPscTmZ)
               padding:
@@ -34,7 +38,7 @@ class UserProfile extends StatelessWidget {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => SignIn(
+                          builder: (context) => Library(
                           ),
                         ),
                       );
@@ -87,7 +91,7 @@ class UserProfile extends StatelessWidget {
                     onTap: (){
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => SignIn(
+                          builder: (context) => Library(
                           ),
                         ),
                       );
@@ -131,11 +135,12 @@ class UserProfile extends StatelessWidget {
                       ),
                     ),
                   ),
+                  /*
                   InkWell(
                     onTap: (){
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => SignIn(
+                          builder: (context) => Library(
                           ),
                         ),
                       );
@@ -183,14 +188,17 @@ class UserProfile extends StatelessWidget {
                       ),
                     ),
                   ),
+                  */
                   InkWell(
-                    onTap: (){
-                      Navigator.of(context).push(
+                    onTap: () async {
+                      await storage.delete(key: "jwt");
+                      Navigator.pushAndRemoveUntil(
+                        context,
                         MaterialPageRoute(
-                          builder: (context) => SignIn(
-                          ),
-                        ),
+                          builder: (context) => const SignIn()),
+                          (route) => false
                       );
+                      
                     },
                     child: Container(
                       // autogroupdk6tATZ (Y7qMUP7ihsHhnc3oTpDk6T)

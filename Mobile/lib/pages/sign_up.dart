@@ -53,21 +53,22 @@ class Body extends StatelessWidget {
   );
 
   Future<bool?> attemptRegister(String fullName, String email, String password, String passwordConfirm) async {
-    final uri = Uri.parse("http://10.0.2.2:5000/api/Auth/Register");
+    //final uri = Uri.parse("http://10.0.2.2:5000/api/Auth/Register");
+    final uri = Uri.parse("https://e-gamestore.onrender.com/api/Auth/Register");
     var res = await http.post(
       uri,
       headers: {
         "Accept": "application/json",
         "content-type": "application/json"
       },
-      body: jsonEncode({'fullName': "Yavuz", 'email': "7@example.com", 'password': "Trabzon61.", 'confirmPassword': "Trabzon61."}),
+      body: jsonEncode({'fullName': fullName, 'email': email, 'password': password, 'confirmPassword': passwordConfirm}),
     );
     if (res.statusCode == 200){
       var result = AccessToken.fromJson(jsonDecode(res.body));
       return result.isSuccess;
   
       } 
-    return false; //string must be returned so i changed it into string
+    return false;
   }
 
 

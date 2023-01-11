@@ -1,33 +1,148 @@
 import 'package:flutter/material.dart';
 import 'package:deneme_app/pages/game_details.dart';
+import 'dart:convert' show ascii, base64, json, jsonEncode, jsonDecode;
+import 'package:deneme_app/utils.dart';
+import 'package:http/http.dart' as http;
 
-class CardData{
-  String name = "";
-  String price = ""; 
-  String rating = ""; 
-  String description = "";
-  String category = "";
-  String imgPath = "";
-  CardData(String name,String price,String rating,String description,String category,String imgPath){
-    this.name = name;
-    this.price = price;
-    this.rating = rating;
-    this.description = description;
-    this.category = category;
-    this.imgPath = imgPath;
+class GenresClass {
+  final int genreID;
+  final String categoryName;
+  GenresClass({
+    required this.genreID,
+    required this.categoryName,
+  });
+
+  factory GenresClass.fromJson(Map<String, dynamic> json) {
+    return GenresClass(
+      genreID: json["genreID"], 
+      categoryName: json["categoryName"]
+    );
+  }
+}
+
+class GameClass {
+  final int id;
+  final String imageUrl;
+  final String gameName;
+  final double gamePrice;
+  final String description;
+  final String publisher;
+  final bool childrenSuitable;
+  final String availableAgeScala;
+  final String releaseDate;
+  final double rating;
+  final String languageOption;
+  final bool isApproved;
+  final List<GenresClass> genres;
+  GameClass({
+    required this.id,
+    required this.imageUrl,
+    required this.gameName,
+    required this.gamePrice,
+    required this.description,
+    required this.publisher,
+    required this.childrenSuitable,
+    required this.availableAgeScala,
+    required this.releaseDate,
+    required this.rating,
+    required this.languageOption,
+    required this.isApproved,
+    required this.genres,
+  });
+
+  factory GameClass.fromJson(Map<String, dynamic> json) {
+    var list = json["genres"] as List;
+    return GameClass(
+      id: json["id"], 
+      imageUrl: json["imageUrl"],
+      gameName: json["gameName"], 
+      gamePrice: json["gamePrice"], 
+      description: json["description"], 
+      publisher: json["publisher"], 
+      childrenSuitable: json["childrenSuitable"], 
+      availableAgeScala: json["availableAgeScala"], 
+      releaseDate: json["releaseDate"], 
+      rating: json["rating"], 
+      languageOption: json["languageOption"],
+      isApproved: json["isApproved"], 
+      genres: list.map((i) => GenresClass.fromJson(i)).toList(),
+      );
   }
 }
 
 
-class UserSearch extends StatelessWidget {
+class GameResponse {
+  late final List<GameClass> response;
+  GameResponse({
+    required this.response,
+  });
+
+  factory GameResponse.fromJson(List<dynamic> json) {
+    return GameResponse(
+      response: json.map((i) => GameClass.fromJson(i)).toList(),
+    );
+  }
+}
+
+
+class CardData{
+  String name = "";
+  double price = 0.0; 
+  //String rating = ""; 
+  String description = "";
+  String category = "";
+  String imgPath = "";
+  int id = -1;
+  CardData(String name,double price,String description,String category,String imgPath, int id){
+    this.name = name;
+    this.price = price;
+    //this.rating = rating;
+    this.description = description;
+    this.category = category;
+    this.imgPath = imgPath;
+    this.id = id;
+  }
+}
+
+class UserSearch extends StatefulWidget {
   UserSearch({super.key});
+  @override
+  State<UserSearch> createState() => _UserSearchState();
+}
 
-  final List<CardData> datas = <CardData>[CardData('Clash of Clans','\$3.99', '4.7','web based strategy game','Strategy','images/clash.png'),
-                                          CardData('Angry Birds', '\$5.99', '4.3', 'local strategy game', 'Strategy','images/angry.png'),
-                                          CardData('Clash Royale','\$1.99','4.4','web based strategy game','Strategy','images/royale.jpg'),
-                                          CardData('Candy Crush', '\$2.99','4.8','puzzle game','Puzzle','images/candy.png')];
+class _UserSearchState extends State<UserSearch>{
+//class UserSearch extends StatelessWidget{
+  //UserSearch({super.key});
 
+  final TextEditingController _searchController= TextEditingController();
 
+  Future<List<CardData?>?> searchGames(String word) async {
+    String? jwt_token = await storage.read(key: 'token');
+    //final uri = Uri.parse("http://10.0.2.2:5000/api/Games/GetAll");
+    final uri = Uri.parse("https://e-gamestore.onrender.com/api/Games/SearchGames?searchTerm=$word");
+    var res = await http.get(
+      uri,
+      headers: {
+        "Authorization": "bearer $jwt_token",
+        "Accept": "application/json",
+        "content-type": "application/json"
+      },
+    );
+    if (res.statusCode == 200 && res.body.isNotEmpty){
+      var result = GameResponse.fromJson(jsonDecode(res.body));
+      List<CardData?> response = [];
+      for(int i = 0; i < result.response.length; i++){
+        CardData temp = CardData(result.response[i].gameName, result.response[i].gamePrice, result.response[i].description, result.response[i].genres[0].categoryName, result.response[i].imageUrl, result.response[i].id);
+        response.add(temp);
+      }
+      return response;
+      } 
+    return null;
+  }
+
+  bool buttonPressed = false;
+  Future<List<CardData?>?>? responselist;
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +155,7 @@ class UserSearch extends StatelessWidget {
             SizedBox(height: 60.0,),
             TextField(
               textAlign: TextAlign.center,
-              //controller: ...,
+              controller: _searchController,
               decoration: InputDecoration(
                 fillColor: Colors.grey.shade100,
                 filled: true,
@@ -51,23 +166,53 @@ class UserSearch extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),),
               ),
             ),
-            Container(
-              padding: EdgeInsets.only(right: 10.0,left: 40.0, top: 30.0, bottom: 0.0),
-              width: MediaQuery.of(context).size.width - 30.0,
-              height: MediaQuery.of(context).size.height - 200.0,
-              child: ListView.builder(
-                padding: EdgeInsets.only(right: 15.0,left: 15.0),
-                itemCount: datas.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-      
-                    height: 225,
-                    margin: EdgeInsets.all(2),
-                    child: Center(
-                        child: _buildCard(datas[index].name, datas[index].price, datas[index].rating, datas[index].description, datas[index].category, datas[index].imgPath,context),
-                      )
-                    );
-                }
+            
+            ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey,
+                  ),
+                  onPressed: () async {
+                    setState(() {
+                      buttonPressed = true;
+                      responselist = searchGames(_searchController.text);
+                      
+                    });
+                  },
+                  child: const Text("Search"),
+                ),
+
+            
+            Center(
+              child: FutureBuilder(
+                future: responselist,
+                builder:(context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done){
+                    if(snapshot.hasError){
+                      Text("there is error");
+                    }
+                    else if (snapshot.hasData && buttonPressed){
+                      var data = snapshot.data as List<CardData?>;
+                      buttonPressed = false;
+                      return ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          padding: EdgeInsets.only(right: 15.0,left: 15.0),
+                          itemCount: data.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Container(
+                              height: 225,
+                              margin: EdgeInsets.all(2),
+                              child: Center(
+                                  child: _buildCard(data[index]!.name, data[index]!.price, data[index]!.description, data[index]!.category, data[index]!.imgPath,context,data[index]!.id),
+                                )
+                              );
+                          }
+                        );
+                    }
+                  }
+                  return Container();
+                    
+                },
               )
             ),
           ],
@@ -77,8 +222,8 @@ class UserSearch extends StatelessWidget {
   }
 
 
-  Widget _buildCard(String name, String price, String rating, String description,
-      String category, String imgPath, context) {
+  Widget _buildCard(String name, double price, String description,
+      String category, String imgPath, context, int gameId) {
     return Padding(
       padding: EdgeInsets.only(top: 5.0, bottom: 5.0, left: 5.0, right: 5.0),
       child: InkWell(
@@ -91,6 +236,7 @@ class UserSearch extends StatelessWidget {
                 gameName: name,
                 gameDescription: description,
                 gameCategory: category,
+                gameId: gameId,
               ),
             ),
           );
@@ -118,12 +264,12 @@ class UserSearch extends StatelessWidget {
                   width: 75.0,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                        image: AssetImage(imgPath), fit: BoxFit.contain),
+                        image: NetworkImage(imgPath), fit: BoxFit.contain),
                   ),
                 ),
               ),
               SizedBox(height: 7.0),
-              Text(price,
+              Text(price.toString(),
                   style: TextStyle(
                       color: Color(0xFFCC8053),
                       fontFamily: 'Varela',
@@ -147,11 +293,6 @@ class UserSearch extends StatelessWidget {
                         fontFamily: 'Varela',
                         fontSize: 14.0)),
                     SizedBox(height: 5),
-                    Text(rating,
-                      style: TextStyle(
-                        color: Color(0xFFCC8053),
-                        fontFamily: 'Varela',
-                        fontSize: 14.0)),
                   ],
                 ),
               )
