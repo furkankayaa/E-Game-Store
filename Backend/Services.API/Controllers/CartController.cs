@@ -54,7 +54,8 @@ namespace Services.API.Controllers
             var lib = _context.LibraryDetails.Where(x => x.UserId == userId).FirstOrDefault();
 
             //if g isn't null and is not in the users library or there is no user library
-            if (g != null && (lib != null && !lib.Games.Contains(g) || lib == null) )
+
+            if (g != null && (lib != null && (lib.Games == null || !lib.Games.Contains(g)) || lib == null) )
             {
                 CartItemDetail addItem = new CartItemDetail { GameId= g.ID, GameName = g.GameName, GamePrice = g.GamePrice, ImageUrl = g.ImageUrl, Publisher = g.Publisher, UserID = userId };
 
