@@ -1,0 +1,37 @@
+﻿@model List<List<App.Library.GameOrderLink>>
+@{
+    ViewData["Title"] = "Purchases";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@foreach (var order in Model)
+{
+    
+    <div class="card mb-3 col-12">
+        <div class="row no-gutters">
+            <div class="col-md-2">
+                <img src="..." class="card-img" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">Order Number: #@order[0].Order.OrderNum</h5>
+                    <p>Games purchased: @order[0].Order.Quantity</p>
+                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                    <p class="card-text"><small class="text-muted">@order[0].Order.OrderDate</small></p>
+                </div>
+            </div>
+            <div class="col-md-2 flex-column w-100 m-auto">
+                <div class="d-table m-auto p-4">
+                    <h6>@order[0].Order.TotalPrice TL</h6>
+                    <button class="btn btn-info">
+                        More
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+
+}

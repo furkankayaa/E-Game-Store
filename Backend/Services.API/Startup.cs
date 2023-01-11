@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,11 +8,14 @@ using App.Library;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -40,9 +44,11 @@ namespace Services.API
 
             var host = Configuration["DBHOST"] ?? "localhost";
             var port = Configuration["DBPORT"] ?? "3306";
-            var pw = Configuration["DBPASSWORD"] ?? "1234";
+            var pw = Configuration["DBPASSWORD"] ?? "123";
+            var dbName = Configuration["DBNAME"] ?? "StoreDB";
+            var userId = Configuration["USERID"] ?? "root";
 
-            var mysqlConnectionString = $"server={host};userid=root;pwd={pw};" + $"port={port};database=StoreDB";
+            var mysqlConnectionString = $"server={host};userid={userId};pwd={pw};" + $"port={port};database={dbName}";
 
             //services.AddDbContextPool<AuthContext>(options =>
             //options.UseMySql(mysqlConnectionString, ServerVersion.AutoDetect(mysqlConnectionString), mySqlOptions =>
@@ -58,6 +64,25 @@ namespace Services.API
                     }));
 
             services.AddCors();
+
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.MaxRequestBodySize = int.MaxValue;
+            });
+
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.Limits.MaxRequestBodySize = int.MaxValue; // if don't set 
+                                                                  //default value is: 30 MB
+            });
+
+            services.Configure<FormOptions>(options =>
+            {
+                options.ValueLengthLimit = int.MaxValue;
+                options.MultipartBodyLengthLimit = int.MaxValue; // if don't set 
+                                                                 //default value is: 128 MB
+                options.MultipartHeadersLengthLimit = int.MaxValue;
+            });
 
             services.AddIdentity<AppUser, IdentityRole>()
                     .AddRoleManager<RoleManager<IdentityRole>>()
@@ -121,12 +146,12 @@ namespace Services.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AuthContext dbContext)
         {
-            if (env.IsDevelopment())
-            {
+            //if (env.IsDevelopment())
+            //{
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Services.API v1"));
-            }
+            //}
 
             //using (var scope =
             //  app.ApplicationServices.CreateScope())
@@ -142,6 +167,9 @@ namespace Services.API
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
+
+
+            //webBuilder.UseKestrel(options => { options.Limits.MaxRequestBodySize = long.MaxValue; });
 
             app.UseAuthentication();
             app.UseRouting();

@@ -16,18 +16,16 @@ using System.Threading.Tasks;
 
 namespace Services.API.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class OrderController : ControllerBase
     {
 
-        private readonly ILogger<OrderController> _logger;
         private readonly AuthContext _context;
         private readonly IConfiguration _config;
 
-        public OrderController(ILogger<OrderController> logger, AuthContext context, IConfiguration config)
+        public OrderController(AuthContext context, IConfiguration config)
         {
-            _logger = logger;
             _context = context;
             _config = config;
         }
@@ -61,7 +59,6 @@ namespace Services.API.Controllers
                         g.ReleaseDate,
                         g.Rating,
                         g.LanguageOption,
-                        g.GameApk,
                         Genres = g.Genres.Select(gen => new
                         {
                             gen.GenreID,
@@ -101,7 +98,8 @@ namespace Services.API.Controllers
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 
                 // Send an HTTP GET request to the GetAll action of the CartController
-                HttpResponseMessage response = await client.GetAsync("http://localhost:5000/api/cart/getall");
+                //HttpResponseMessage response = await client.GetAsync("http://localhost:5000/api/cart/getall");
+                HttpResponseMessage response = await client.GetAsync("https://e-gamestore.onrender.com/api/cart/getall");
 
                 // Read the response content as a list of CartItem objects
                 List<CartItemDetail> cartItems = await response.Content.ReadAsAsync<List<CartItemDetail>>();
@@ -133,12 +131,25 @@ namespace Services.API.Controllers
                     _context.OrderDetails.Add(Order);
 
                     //Library ye oyunu ekle
-                    //!!!!!!!!!!!!!!!!!!
+                    var userLib = _context.LibraryDetails.Where(x => x.UserId == userId).Include(x => x.Games).FirstOrDefault();
+                    if (userLib != null && userLib.Games != null)
+                    {
 
+                        userLib.Games.AddRange(orderedGames);
+                    }
+                    else if(userLib != null){
+                        userLib.Games = orderedGames;
+                    }
+                    else
+                    {
+                        var libObj = new LibraryDetail { Games = orderedGames, UserId = userId };
+                        _context.LibraryDetails.Add(libObj);
+                    }
 
 
                     // Send an HTTP DELETE request to the DeleteAll action of the CartController
-                    var res = await client.DeleteAsync("http://localhost:5000/api/cart/deleteall");
+                    //var res = await client.DeleteAsync("http://localhost:5000/api/cart/deleteall");
+                    var res = await client.DeleteAsync("https://e-gamestore.onrender.com/api/cart/deleteall");
 
                     _context.SaveChanges();
 

@@ -9,7 +9,8 @@ namespace App.Library
     public class LibraryDetail
     {
         public int ID { get; set; }
-        public int GameId { get; set; }
+        //public int GameId { get; set; }
+        public List<GameDetail> Games { get; set; }
         public string UserId { get; set; }
     }
 }

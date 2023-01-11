@@ -1,0 +1,147 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>3a1b91a6-23ad-4a21-aec5-3d8b53f691c0</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\map\.DS_Store" />
+    <None Include="wwwroot\map\css\.DS_Store" />
+    <None Include="wwwroot\map\css\bootstrap.min.css" />
+    <None Include="wwwroot\map\css\bootstrap\.DS_Store" />
+    <None Include="wwwroot\map\css\bootstrap\mixins\.DS_Store" />
+    <None Include="wwwroot\map\css\bootstrap\mixins\_border-radius.css" />
+    <None Include="wwwroot\map\css\bootstrap\mixins\_screen-reader.css" />
+    <None Include="wwwroot\map\css\bootstrap\mixins\_visibility.css" />
+    <None Include="wwwroot\map\css\bootstrap\utilities\_stretched-link.css" />
+    <None Include="wwwroot\map\css\bootstrap\_media.css" />
+    <None Include="wwwroot\map\css\style.css" />
+    <None Include="wwwroot\map\fonts\.DS_Store" />
+    <None Include="wwwroot\map\images\.DS_Store" />
+    <None Include="wwwroot\map\js\.DS_Store" />
+    <None Include="wwwroot\map\js\bootstrap.min.js" />
+    <None Include="wwwroot\map\js\jquery.min.js" />
+    <None Include="wwwroot\map\js\main.js" />
+    <None Include="wwwroot\map\js\popper.js" />
+    <None Include="wwwroot\map\scss\.DS_Store" />
+    <None Include="wwwroot\map\scss\bootstrap\.DS_Store" />
+    <None Include="wwwroot\map\scss\bootstrap\bootstrap-grid.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\bootstrap-reboot.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\bootstrap.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_alert.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_background-variant.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_badge.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_border-radius.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_box-shadow.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_breakpoints.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_buttons.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_caret.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_clearfix.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_deprecate.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_float.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_forms.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_gradients.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_grid-framework.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_grid.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_hover.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_image.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_list-group.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_lists.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_nav-divider.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_pagination.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_reset-text.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_resize.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_screen-reader.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_size.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_table-row.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_text-emphasis.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_text-hide.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_text-truncate.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_transition.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\mixins\_visibility.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_align.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_background.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_borders.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_clearfix.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_display.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_embed.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_flex.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_float.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_overflow.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_position.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_screenreaders.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_shadows.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_sizing.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_spacing.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_stretched-link.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_text.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\utilities\_visibility.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\vendor\_rfs.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_alert.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_badge.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_breadcrumb.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_button-group.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_buttons.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_card.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_carousel.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_close.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_code.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_custom-forms.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_dropdown.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_forms.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_functions.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_grid.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_images.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_input-group.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_jumbotron.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_list-group.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_media.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_mixins.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_modal.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_nav.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_navbar.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_pagination.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_popover.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_print.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_progress.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_reboot.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_root.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_spinners.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_tables.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_toasts.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_tooltip.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_transitions.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_type.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_utilities.scss" />
+    <None Include="wwwroot\map\scss\bootstrap\_variables.scss" />
+    <None Include="wwwroot\map\scss\style.scss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.7.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.48" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\App.Library\App.Library.csproj" />
+  </ItemGroup>
+
+</Project>

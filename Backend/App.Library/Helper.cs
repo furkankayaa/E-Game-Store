@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,6 +33,18 @@ namespace App.Library
             return false;
         }
 
+        public static async Task<HttpResponseMessage> isValidAsync(string token)
+        {
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://e-gamestore.onrender.com/api/auth/");
+
+            // add the token to the request header
+            request.Headers.Add("Authorization", "Bearer " + token);
+
+            // send the request and handle the response
+            var response = await client.SendAsync(request);
+            return response;
+        }
         
     }
 }

@@ -55,5 +55,20 @@ namespace Services.API.Controllers
             var found = await _context.GenreDetails.FindAsync(id);
             return Ok(found.CategoryName);
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [Route("[action]")]
+        public ActionResult AddGenre(string genreName)
+        {
+            if (genreName != null)
+            {
+                var toAdd = new GenreDetail { CategoryName = genreName };
+                _context.GenreDetails.Add(toAdd);
+                _context.SaveChanges();
+                return Ok();
+            }
+            return BadRequest();
+        }
     }
 }

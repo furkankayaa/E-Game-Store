@@ -118,7 +118,7 @@ namespace Services.API.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("GameApk")
+                    b.Property<string>("GameApkName")
                         .HasColumnType("longtext");
 
                     b.Property<string>("GameName")
@@ -126,6 +126,9 @@ namespace Services.API.Migrations
 
                     b.Property<double>("GamePrice")
                         .HasColumnType("double");
+
+                    b.Property<string>("ImageName")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("longtext");
@@ -169,9 +172,6 @@ namespace Services.API.Migrations
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("GameId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
@@ -244,6 +244,21 @@ namespace Services.API.Migrations
                     b.HasIndex("GenresGenreID");
 
                     b.ToTable("GameDetailGenreDetail");
+                });
+
+            modelBuilder.Entity("GameDetailLibraryDetail", b =>
+                {
+                    b.Property<int>("GamesID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LibrariesID")
+                        .HasColumnType("int");
+
+                    b.HasKey("GamesID", "LibrariesID");
+
+                    b.HasIndex("LibrariesID");
+
+                    b.ToTable("GameDetailLibraryDetail");
                 });
 
             modelBuilder.Entity("GameDetailOrderDetail", b =>
@@ -412,6 +427,21 @@ namespace Services.API.Migrations
                     b.HasOne("App.Library.GenreDetail", null)
                         .WithMany()
                         .HasForeignKey("GenresGenreID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("GameDetailLibraryDetail", b =>
+                {
+                    b.HasOne("App.Library.GameDetail", null)
+                        .WithMany()
+                        .HasForeignKey("GamesID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("App.Library.LibraryDetail", null)
+                        .WithMany()
+                        .HasForeignKey("LibrariesID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
