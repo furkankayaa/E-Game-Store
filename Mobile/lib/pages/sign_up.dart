@@ -170,6 +170,7 @@ class Body extends StatelessWidget {
                 ),
                 TextField(
                   textAlign: TextAlign.center,
+                  obscureText: true,
                   controller: _passwordController,
                   decoration: InputDecoration(
                     fillColor: Colors.grey.shade100,
@@ -199,6 +200,7 @@ class Body extends StatelessWidget {
                   ),
                 ),
                 TextField(
+                  obscureText: true,
                   textAlign: TextAlign.center,
                   controller: _passwordConfirmController,
                   decoration: InputDecoration(
