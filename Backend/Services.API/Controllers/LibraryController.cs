@@ -69,8 +69,10 @@ namespace Services.API.Controllers
         {
             var cred = new AwsCredentials()
             {
-                AwsKey = _config["AwsConfiguration:AWSAccessKey"],
-                AwsSecretKey = _config["AwsConfiguration:AWSSecretKey"]
+                //AwsKey = _config["AwsConfiguration:AWSAccessKey"],
+                //AwsSecretKey = _config["AwsConfiguration:AWSSecretKey"]
+                AwsKey = _config["AWSAccessKey"],
+                AwsSecretKey = _config["AWSSecretKey"]
             };
 
             var service = new StorageService();
