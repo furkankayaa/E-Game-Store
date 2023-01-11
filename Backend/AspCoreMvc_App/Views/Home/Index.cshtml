@@ -1,0 +1,45 @@
+﻿@*@model List<App.Library.GenreDetail>*@
+@model List<App.Library.PublishRequestDetail>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <div class="container">
+
+        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+            @*@using (Html.BeginForm("Index", "Home", FormMethod.Post))
+            {
+                @Html.TextBox("Game Name");
+
+                <div>
+                    <input type="submit" value="searchTerm" />
+                </div>
+            }*@
+            @*<ul class="navbar-nav flex-grow-1">
+            <li>
+                <a class="nav-link text-dark" asp-controller="home" asp-action="Index" asp-route-categoryName="">All Categories</a>
+            </li>
+            @foreach (var i in Model)
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-controller="home" asp-action="index" asp-route-categoryName="@i.CategoryName">@i.CategoryName</a>
+                </li>
+            }
+        </ul>*@
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    @if (ViewBag.category != null)
+    {
+        @await Component.InvokeAsync("CategoryQuery", ViewBag.category)                                                                       
+    }
+    else
+    {
+        @await Component.InvokeAsync("CategoryQuery", null)
+    }
+    
+</div>

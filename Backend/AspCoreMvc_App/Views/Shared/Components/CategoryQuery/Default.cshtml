@@ -1,0 +1,67 @@
+﻿@model List<App.Library.PublishRequestDetail>
+@using App.Library;
+
+<div class="row">
+    @foreach (var i in Model)
+    {
+
+        @*var userId = User.Identity.Name;
+        var game = GetRequest.GetGameById(i.ID);
+        var purchases = GetRequest.GetPurchases(userId);
+        var isPurchased = Helper.isPurchased(game, purchases);*@
+
+        @*var cartItems = GetRequest.GetCartItems(userId);*@
+        @*var isCartItem = Helper.isCartItem(game, cartItems);*@
+
+        <div class="col-6 col-md-4">
+            <div class="card " style="width: 18rem; margin: auto">
+                <img class="card-img-top" src="@i.Game.ImageUrl" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">@i.Game.GamePrice TL</h5>
+                    <h4 class="card-title">@i.Game.GameName</h4>
+                    <p class="card-text">
+                        @if (i.Game.Description.Length > 150)
+                        {
+                            @(i.Game.Description.Substring(0,150) + "...")
+                        }
+                        else
+                        {
+
+                            @i.Game.Description
+                        }
+                    </p>
+                        <h6 class="card-title">
+                            @foreach (var c in i.Game.Genres)
+                            {
+                                @(c.CategoryName + "/")
+                            }
+                        </h6>
+                    <h6 class="card-title">@i.Game.Publisher</h6>
+                    @*<a href="#" class="btn btn-primary">More</a>*@
+                  
+                    <a asp-controller="Home" asp-action="Reject" asp-route-requestId=@i.ID class="btn btn-danger">Reject</a>
+                    <a asp-controller="Home" asp-action="Approve" asp-route-requestId=@i.ID class="btn btn-success">Approve</a>
+                  
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+@*@section scripts
+    {
+    <script>
+        function approve(id) {
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("Approve", "CategoryQuery")",
+                data: { id: id },
+                contentType: "application/html; charset=utf-8",
+                //success: function (response) {
+                //    $("#view-component-container").html(response);
+                //}
+            });
+        }
+    </script>
+}*@
