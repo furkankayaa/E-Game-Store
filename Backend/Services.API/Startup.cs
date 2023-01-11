@@ -40,7 +40,7 @@ namespace Services.API
 
             var host = Configuration["DBHOST"] ?? "localhost";
             var port = Configuration["DBPORT"] ?? "3306";
-            var pw = Configuration["DBPASSWORD"] ?? "123";
+            var pw = Configuration["DBPASSWORD"] ?? "1234";
 
             var mysqlConnectionString = $"server={host};userid=root;pwd={pw};" + $"port={port};database=StoreDB";
 

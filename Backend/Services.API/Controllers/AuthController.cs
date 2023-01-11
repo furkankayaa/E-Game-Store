@@ -117,6 +117,7 @@ namespace Services.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
+        //[AllowAnonymous]
         [HttpPost]
         [Route("CreateAdmin")]
         public async Task<ActionResult> CreateAdmin([FromBody] RegisterViewModel model)
