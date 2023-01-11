@@ -173,7 +173,7 @@ namespace Services.API.Controllers
                 var privateBucket = _config["AwsConfiguration:PrivateBucket"];
                 var publicBucket = _config["AwsConfiguration:PublicBucket"];
 
-                Console.WriteLine(_config["AwsConfiguration:AWSAccessKey"]);
+                Console.WriteLine("Access Key =",_config["AwsConfiguration:AWSAccessKey"]);
 
                 var apkObjUrl = UploadFileAsync(apkFile, apkNewName, privateBucket, false);
                 var imgObjUrl = UploadFileAsync(imageFile, imgNewName, publicBucket, true);
