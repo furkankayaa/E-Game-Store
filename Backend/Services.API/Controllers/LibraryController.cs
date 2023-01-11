@@ -58,7 +58,7 @@ namespace Services.API.Controllers
                         })
                     })
                 })
-                .ToList();
+                .FirstOrDefault();
 
             return Ok(libraryItems);
         }
