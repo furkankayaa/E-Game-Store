@@ -1,10 +1,40 @@
 import 'package:flutter/material.dart';
-
+import 'dart:convert' show ascii, base64, json, jsonEncode, jsonDecode;
+import 'package:deneme_app/utils.dart';
+import 'package:http/http.dart' as http;
 
 class GameDetail extends StatelessWidget {
-  final assetPath, gamePrice, gameName, gameDescription, gameCategory;
+  final assetPath, gamePrice, gameName, gameDescription, gameCategory, gameId;
   
-  GameDetail({this.assetPath, this.gamePrice, this.gameName, this.gameDescription, this.gameCategory});
+  GameDetail({this.assetPath, this.gamePrice, this.gameName, this.gameDescription, this.gameCategory, this.gameId});
+
+  void displayDialog(context, title, text) => showDialog(
+        context: context,
+        builder: (context) =>
+            AlertDialog(title: Text(title), content: Text(text)),
+  );
+
+
+  Future<bool?> postCart(int gameId) async {
+    String? jwt_token = await storage.read(key: 'token');
+    //final uri = Uri.parse("http://10.0.2.2:5000/api/Games/GetAll");
+    final uri = Uri.parse("https://e-gamestore.onrender.com/api/Cart/Post?gameId=$gameId");
+    var res = await http.post(
+      uri,
+      headers: {
+        "Authorization": "bearer $jwt_token",
+        "Accept": "application/json",
+        "content-type": "application/json"
+      },
+    );
+    if (res.statusCode == 200){
+        return true;
+      } 
+    return null;
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,15 +69,18 @@ class GameDetail extends StatelessWidget {
             SizedBox(height: 15.0),
             Hero(
               tag: assetPath,
-              child: Image.asset(assetPath,
-              height: 150.0,
-              width: 100.0,
-              fit: BoxFit.contain
-              )
+              child: Container(
+                  height: 75.0,
+                  width: 75.0,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: NetworkImage(assetPath, scale: 0.6,), fit: BoxFit.contain),
+                  ),
+              ),
             ),
             SizedBox(height: 20.0),
             Center(
-              child: Text(gamePrice,
+              child: Text(gamePrice.toString(),
                   style: TextStyle(
                       fontFamily: 'Varela',
                       fontSize: 22.0,
@@ -84,15 +117,25 @@ class GameDetail extends StatelessWidget {
                   borderRadius: BorderRadius.circular(25.0),
                   color: Color(0xFFF17532)
                 ),
-                child: Center(
-                  child: Text('Add to cart',
-                    style: TextStyle(
-                      fontFamily: 'Varela',
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white
-                ),
-                  )
+                child: InkWell(
+                  onTap: () async {
+                    bool? success = await postCart(gameId);
+                    if (success != null && success == true) {
+                      displayDialog(context, "Sepete eklendi", "Başarılı");
+                    } else {
+                      displayDialog(context, "Sepete eklenemedi", "başarısız");
+                    }
+                  },
+                  child: Center(
+                    child: Text('Add to cart',
+                      style: TextStyle(
+                        fontFamily: 'Varela',
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white
+                  ),
+                    )
+                  ),
                 )
               )
             )
