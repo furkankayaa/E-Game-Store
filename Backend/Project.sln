@@ -20,6 +20,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.API", "Services.AP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspCoreMvc_App", "AspCoreMvc_App\AspCoreMvc_App.csproj", "{B3922C28-2DD3-4F71-8156-B4AA197DB91B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Test", "Services.Test\Services.Test.csproj", "{999E032F-ED6A-4847-8C86-C56AF1087B13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{B3922C28-2DD3-4F71-8156-B4AA197DB91B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3922C28-2DD3-4F71-8156-B4AA197DB91B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3922C28-2DD3-4F71-8156-B4AA197DB91B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{999E032F-ED6A-4847-8C86-C56AF1087B13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{999E032F-ED6A-4847-8C86-C56AF1087B13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{999E032F-ED6A-4847-8C86-C56AF1087B13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{999E032F-ED6A-4847-8C86-C56AF1087B13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
